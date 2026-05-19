@@ -11,7 +11,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "prepare": "husky",
-    "db:types": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
+    "db:types": "supabase gen types typescript --project-id puptjzwoddlenykhuuni 2>/dev/null > src/lib/supabase/database.types.ts",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset"
   },

@@ -92,7 +92,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.100.0
 
       - name: Regenerate types
         run: supabase gen types typescript --project-id ${{ secrets.SUPABASE_PROJECT_ID }} > /tmp/database.types.ts
