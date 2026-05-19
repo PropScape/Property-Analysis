@@ -9,71 +9,13 @@ import { saveStepAction } from "@/actions/analysis";
 import { useAnalysisStore } from "@/stores/analysis-store";
 import { cn } from "@/lib/utils";
 import type { Step4Data, Bundesland, CustomCostItem } from "@/domain/types/wizard";
+import {
+  BUNDESLAND_TAX_RATES,
+  BUNDESLAND_OPTIONS,
+  computeAncillaryCosts,
+} from "@/domain/calculations/acquisition-costs";
+import { formatCentsPlain, applyPercent } from "@/domain/calculations/currency";
 import { Receipt, Plus, Trash2 } from "lucide-react";
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-/**
- * Property transfer tax rates per Bundesland (Grunderwerbsteuer).
- * Source: official rates as of 2024.
- */
-export const BUNDESLAND_TAX_RATES: Record<Bundesland, number> = {
-  BY: 3.5,  // Bayern
-  BW: 5.0,  // Baden-Württemberg
-  BE: 6.0,  // Berlin
-  BB: 6.5,  // Brandenburg
-  HB: 5.0,  // Bremen
-  HH: 5.5,  // Hamburg
-  HE: 6.0,  // Hessen
-  MV: 6.0,  // Mecklenburg-Vorpommern
-  NI: 5.0,  // Niedersachsen
-  NW: 6.5,  // Nordrhein-Westfalen
-  RP: 5.0,  // Rheinland-Pfalz
-  SL: 6.5,  // Saarland
-  SN: 5.5,  // Sachsen
-  ST: 5.0,  // Sachsen-Anhalt
-  SH: 6.5,  // Schleswig-Holstein
-  TH: 6.5,  // Thüringen
-};
-
-/** Human-readable Bundesland labels sorted alphabetically by name. */
-export const BUNDESLAND_OPTIONS: { key: Bundesland; label: string }[] = [
-  { key: "BW", label: "Baden-Württemberg" },
-  { key: "BY", label: "Bayern" },
-  { key: "BE", label: "Berlin" },
-  { key: "BB", label: "Brandenburg" },
-  { key: "HB", label: "Bremen" },
-  { key: "HH", label: "Hamburg" },
-  { key: "HE", label: "Hessen" },
-  { key: "MV", label: "Mecklenburg-Vorpommern" },
-  { key: "NI", label: "Niedersachsen" },
-  { key: "NW", label: "Nordrhein-Westfalen" },
-  { key: "RP", label: "Rheinland-Pfalz" },
-  { key: "SL", label: "Saarland" },
-  { key: "SN", label: "Sachsen" },
-  { key: "ST", label: "Sachsen-Anhalt" },
-  { key: "SH", label: "Schleswig-Holstein" },
-  { key: "TH", label: "Thüringen" },
-];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Format integer cents → DE locale string without symbol. */
-function fmtEur(cents: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.round(cents) / 100);
-}
-
-/** Calculate a percentage of a purchase price in cents. */
-function pctCents(purchasePriceCents: number, pct: number): number {
-  return Math.round(purchasePriceCents * (pct / 100));
-}
 
 // ---------------------------------------------------------------------------
 // Types shared with the Summary Card
@@ -151,7 +93,7 @@ export function Step4Form({
   const brokerPct = parseFloat(brokerFee) || 0;
   const notaryPct = parseFloat(notaryFee) || 0;
   const landRegPct = parseFloat(landRegistryFee) || 0;
-  const transferTaxPct = BUNDESLAND_TAX_RATES[bundesland];
+  const transferTaxPercent = BUNDESLAND_TAX_RATES[bundesland];
 
   /** Notify the parent Shell of live data changes for the summary card. */
   const notifyParent = useCallback(
@@ -266,7 +208,7 @@ export function Step4Form({
               label="Maklerprovision"
               value={brokerFee}
               onChange={handleBrokerChange}
-              eurAmount={pctCents(purchasePriceCents, brokerPct)}
+              eurAmount={applyPercent(purchasePriceCents, brokerPct)}
               disabled={isPending}
             />
 
@@ -276,7 +218,7 @@ export function Step4Form({
               label="Notarkosten"
               value={notaryFee}
               onChange={handleNotaryChange}
-              eurAmount={pctCents(purchasePriceCents, notaryPct)}
+              eurAmount={applyPercent(purchasePriceCents, notaryPct)}
               disabled={isPending}
             />
 
@@ -286,7 +228,7 @@ export function Step4Form({
               label="Grundbucheintrag"
               value={landRegistryFee}
               onChange={handleLandRegChange}
-              eurAmount={pctCents(purchasePriceCents, landRegPct)}
+              eurAmount={applyPercent(purchasePriceCents, landRegPct)}
               disabled={isPending}
             />
 
@@ -321,7 +263,7 @@ export function Step4Form({
                 </div>
               </div>
               <span className="text-xs text-slate-400 text-right">
-                {fmtEur(pctCents(purchasePriceCents, transferTaxPct))}&thinsp;€
+                {formatCentsPlain(applyPercent(purchasePriceCents, transferTaxPercent))}&thinsp;€
               </span>
             </div>
           </div>
@@ -440,7 +382,7 @@ function PercentField({ id, label, value, onChange, eurAmount, disabled }: Perce
         </div>
       </div>
       <span className="text-xs text-slate-400 text-right tabular-nums">
-        {eurAmount > 0 ? `${fmtEur(eurAmount)}\u202f€` : "—"}
+        {eurAmount > 0 ? `${formatCentsPlain(eurAmount)}\u202f€` : "—"}
       </span>
     </div>
   );
@@ -541,26 +483,24 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
     customItems,
   } = data;
 
-  const transferTaxPct = BUNDESLAND_TAX_RATES[bundesland];
+  const {
+    brokerCents,
+    notaryCents,
+    landRegistryCents,
+    transferTaxCents,
+    transferTaxPercent,
+    totalAncillaryCents,
+    totalInvestmentCents,
+    ancillaryRatePercent,
+  } = computeAncillaryCosts(
+    purchasePriceCents,
+    brokerFeePercent,
+    notaryFeePercent,
+    landRegistryFeePercent,
+    bundesland,
+    customItems
+  );
 
-  const brokerCents = pctCents(purchasePriceCents, brokerFeePercent);
-  const notaryCents = pctCents(purchasePriceCents, notaryFeePercent);
-  const landRegCents = pctCents(purchasePriceCents, landRegistryFeePercent);
-  const transferTaxCents = pctCents(purchasePriceCents, transferTaxPct);
-
-  const customTotal = customItems
-    .filter((i) => i.amount_cents > 0)
-    .reduce((sum, i) => sum + i.amount_cents, 0);
-
-  const totalAncillaryCents =
-    brokerCents + notaryCents + landRegCents + transferTaxCents + customTotal;
-
-  const totalInvestmentCents = purchasePriceCents + totalAncillaryCents;
-
-  const ancillaryRatePct =
-    purchasePriceCents > 0
-      ? (totalAncillaryCents / purchasePriceCents) * 100
-      : 0;
 
   return (
     <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-slate-200 relative overflow-hidden">
@@ -574,7 +514,7 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
         <div className="flex justify-between items-center text-slate-600 gap-2">
           <span className="whitespace-nowrap">Kaufpreis</span>
           <span className="font-semibold text-slate-900 tabular-nums">
-            {purchasePriceCents > 0 ? `${fmtEur(purchasePriceCents)}\u202f€` : "—"}
+            {purchasePriceCents > 0 ? `${formatCentsPlain(purchasePriceCents)}\u202f€` : "—"}
           </span>
         </div>
 
@@ -593,11 +533,11 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
         />
         <SummaryRow
           label={`Grundbuch (${landRegistryFeePercent.toFixed(2).replace(".", ",")}%)`}
-          cents={landRegCents}
+          cents={landRegistryCents}
           show={purchasePriceCents > 0}
         />
         <SummaryRow
-          label={`Grunderwerb (${transferTaxPct.toFixed(1).replace(".", ",")}%)`}
+          label={`Grunderwerb (${transferTaxPercent.toFixed(1).replace(".", ",")}%)`}
           cents={transferTaxCents}
           show={purchasePriceCents > 0}
         />
@@ -620,14 +560,14 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
         <div className="flex justify-between items-center text-slate-700 font-semibold gap-2">
           <span className="whitespace-nowrap">Nebenkosten</span>
           <span className="tabular-nums">
-            {purchasePriceCents > 0 ? `${fmtEur(totalAncillaryCents)}\u202f€` : "—"}
+            {purchasePriceCents > 0 ? `${formatCentsPlain(totalAncillaryCents)}\u202f€` : "—"}
           </span>
         </div>
         {purchasePriceCents > 0 && (
           <div className="flex justify-between items-center text-slate-400 text-xs -mt-0.5 gap-2">
             <span className="whitespace-nowrap">Nebenkostenquote</span>
             <span className="tabular-nums">
-              {ancillaryRatePct.toFixed(2).replace(".", ",")}&thinsp;%
+              {ancillaryRatePercent.toFixed(2).replace(".", ",")}&thinsp;%
             </span>
           </div>
         )}
@@ -640,7 +580,7 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
         </span>
         <div className="flex items-baseline gap-2">
           <span className="text-2xl font-bold text-navy-900 tracking-tight tabular-nums">
-            {purchasePriceCents > 0 ? fmtEur(totalInvestmentCents) : "—"}
+            {purchasePriceCents > 0 ? formatCentsPlain(totalInvestmentCents) : "—"}
           </span>
           {purchasePriceCents > 0 && (
             <span className="text-base font-semibold text-navy-700">€</span>
@@ -662,7 +602,7 @@ function SummaryRow({ label, cents, show }: SummaryRowProps) {
     <div className="flex justify-between items-center text-slate-500 gap-2">
       <span className="truncate">{label}</span>
       <span className="tabular-nums whitespace-nowrap flex-shrink-0">
-        {show ? `${fmtEur(cents)}\u202f€` : "—"}
+        {show ? `${formatCentsPlain(cents)}\u202f€` : "—"}
       </span>
     </div>
   );

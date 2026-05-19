@@ -9,69 +9,10 @@ import { saveStepAction } from "@/actions/analysis";
 import { useAnalysisStore } from "@/stores/analysis-store";
 import { cn } from "@/lib/utils";
 import type { Step3Data } from "@/domain/types/wizard";
+import { parseToCents, formatCentsPlain } from "@/domain/calculations/currency";
+import { computeRentalKpis } from "@/domain/calculations/rental-kpis";
+import type { RentalKpis } from "@/domain/calculations/rental-kpis";
 import { CalendarDays, Euro, Zap } from "lucide-react";
-
-// ---------------------------------------------------------------------------
-// Currency helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Parses a German-format EUR string to integer cents.
- * e.g. "350.000" → 35_000_000, "1.250,50" → 125_050
- */
-function parseToCents(raw: string): number | null {
-  const cleaned = raw.replace(/\./g, "").replace(",", ".").trim();
-  const num = parseFloat(cleaned);
-  if (isNaN(num)) return null;
-  return Math.round(num * 100);
-}
-
-/**
- * Formats integer cents to a German-locale EUR string (no symbol).
- * e.g. 35_000_000 → "350.000"
- */
-function formatCents(cents: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
-
-// ---------------------------------------------------------------------------
-// Live KPI calculations
-// ---------------------------------------------------------------------------
-
-interface LiveKpis {
-  grossYieldPercent: number | null;
-  netAnnualRentEur: number | null;
-  purchasePriceFactor: number | null;
-}
-
-function computeKpis(
-  purchasePriceCents: number | null,
-  coldRentCents: number | null,
-  vacancyPercent: number
-): LiveKpis {
-  if (!purchasePriceCents || !coldRentCents || purchasePriceCents === 0) {
-    return {
-      grossYieldPercent: null,
-      netAnnualRentEur: null,
-      purchasePriceFactor: null,
-    };
-  }
-
-  const vacancyFactor = 1 - vacancyPercent / 100;
-  const netAnnualRentCents = coldRentCents * 12 * vacancyFactor;
-  const grossYield = (netAnnualRentCents / purchasePriceCents) * 100;
-  const factor =
-    netAnnualRentCents > 0 ? purchasePriceCents / netAnnualRentCents : null;
-
-  return {
-    grossYieldPercent: grossYield,
-    netAnnualRentEur: netAnnualRentCents / 100,
-    purchasePriceFactor: factor,
-  };
-}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -141,13 +82,13 @@ export function Step3Form({
   const initialWarm = initialData?.warm_rent_cents ?? saved.warm_rent_cents;
 
   const [purchaseDisplay, setPurchaseDisplay] = useState(
-    initialPurchase ? formatCents(initialPurchase) : ""
+    initialPurchase ? formatCentsPlain(initialPurchase) : ""
   );
   const [coldRentDisplay, setColdRentDisplay] = useState(
-    initialCold ? formatCents(initialCold) : ""
+    initialCold ? formatCentsPlain(initialCold) : ""
   );
   const [warmRentDisplay, setWarmRentDisplay] = useState(
-    initialWarm ? formatCents(initialWarm) : ""
+    initialWarm ? formatCentsPlain(initialWarm) : ""
   );
   const [rentStartDate, setRentStartDate] = useState(
     initialData?.rent_start_date ?? saved.rent_start_date ?? ""
@@ -166,7 +107,7 @@ export function Step3Form({
   // Derived cents for KPI calculation
   const purchaseCents = parseToCents(purchaseDisplay);
   const coldRentCents = parseToCents(coldRentDisplay);
-  const kpis = computeKpis(purchaseCents, coldRentCents, vacancyRate);
+  const kpis = computeRentalKpis(purchaseCents, coldRentCents, vacancyRate);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -540,7 +481,7 @@ export function Step3KpiPreviewCard({
 }: KpiPreviewCardProps) {
   const purchaseCents = parseToCents(purchaseDisplayValue);
   const coldRentCents = parseToCents(coldRentDisplayValue);
-  const kpis = computeKpis(purchaseCents, coldRentCents, vacancyRate);
+  const kpis = computeRentalKpis(purchaseCents, coldRentCents, vacancyRate);
 
   const yieldColor =
     kpis.grossYieldPercent === null
@@ -621,7 +562,7 @@ export function Step3KpiPreviewCard({
           </div>
           {coldRentCents && (
             <span className="text-xs text-slate-400 mt-1">
-              Monatlich: {formatCents(coldRentCents)}&thinsp;€ (vor Leerstand)
+              Monatlich: {formatCentsPlain(coldRentCents)}&thinsp;€ (vor Leerstand)
             </span>
           )}
         </div>

@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import type { AnalysisSummary } from "@/domain/types/analysis-summary";
+import { formatCentsEur } from "@/domain/calculations/currency";
 
 interface AnalysisCardProps {
   analysis: AnalysisSummary;
@@ -28,23 +29,6 @@ interface AnalysisCardProps {
   className?: string;
 }
 
-/**
- * Formats cents to a German-locale EUR string.
- *
- * @remarks
- * Converts integer cents to EUR display format.
- * Financial precision is maintained: the domain layer works in cents,
- * and this is the UI-layer conversion point.
- */
-function formatCents(cents: number): string {
-  const eur = cents / 100;
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(eur);
-}
 
 /**
  * Formats a cashflow value with +/- prefix for display.
