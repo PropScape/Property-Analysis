@@ -6,16 +6,17 @@ import { createServerClient } from "@supabase/ssr";
 const AUTH_PUBLIC_BYPASS = ["/auth/callback", "/auth/verify-email"];
 
 /**
- * Next.js middleware — session refresh + route protection.
+ * Next.js proxy — session refresh + route protection.
  *
  * @remarks
  * 1. Refreshes the Supabase session cookie on every request (required by @supabase/ssr).
  * 2. Redirects unauthenticated users away from protected routes to /auth/login.
  * 3. Redirects authenticated users away from /auth/login and /auth/register to /.
  *
+ * Renamed from `middleware` to `proxy` as per Next.js 16 convention.
  * See SPEC-AUTH v1.0.0 §4.5.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = await updateSession(request);
   const { pathname } = request.nextUrl;
 
