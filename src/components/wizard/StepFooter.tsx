@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 
 interface StepFooterProps {
@@ -40,66 +40,60 @@ export function StepFooter({
   return (
     <footer
       className={cn(
-        // Glass panel sticky bar
-        "sticky bottom-0 z-10",
-        "bg-white/80 backdrop-blur-sm border-t border-slate-200",
-        "px-4 py-3 sm:px-6 sm:py-4",
+        "w-full flex items-center justify-between mt-8",
         className
       )}
     >
-      <div className="max-w-3xl mx-auto flex items-center gap-3">
+
         {/* Back button */}
         {showBack && onBack && (
-          <Button
+          <button
             id="wizard-step-back"
             type="button"
-            variant="ghost"
             onClick={onBack}
             disabled={isPending}
             className={cn(
-              "text-slate-600 hover:text-slate-900 hover:bg-slate-50",
-              "transition-all duration-200 ease-in-out"
+              "px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium",
+              "hover:bg-slate-50 hover:text-slate-900 transition-colors",
+              "flex items-center gap-2",
+              "disabled:opacity-50 disabled:pointer-events-none"
             )}
           >
-            <ArrowLeft className="mr-1.5 w-4 h-4" aria-hidden="true" />
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             Zurück
-          </Button>
+          </button>
         )}
 
         {/* Spacer */}
         <div className="flex-1" />
 
         {/* Primary CTA */}
-        <Button
+        <button
           id="wizard-step-next"
           type="submit"
           disabled={isPending}
           className={cn(
-            "bg-navy-600 text-white",
-            "hover:bg-navy-700 hover:shadow-lg",
-            "focus:ring-2 focus:ring-navy-600/20 focus:outline-none",
-            "shadow-[0_0_20px_rgba(30,58,138,0.2)]",
-            "transition-all duration-200 ease-in-out",
-            "min-w-[120px]",
-            isPending && "opacity-50 pointer-events-none"
+            "px-8 py-3 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold",
+            "shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] hover:shadow-[0_6px_20px_rgba(30,58,138,0.23)]",
+            "transition-all flex items-center gap-2 group",
+            "disabled:opacity-50 disabled:pointer-events-none"
           )}
         >
           {isPending ? (
             <>
-              <Loader2 className="mr-1.5 w-4 h-4 animate-spin" aria-hidden="true" />
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
               Speichern…
             </>
           ) : (
             <>
               {primaryLabel}
               <ArrowRight
-                className="ml-1.5 w-4 h-4 group-hover:translate-x-1 transition-transform"
+                className="w-4 h-4 group-hover:translate-x-1 transition-transform"
                 aria-hidden="true"
               />
             </>
           )}
-        </Button>
-      </div>
+        </button>
     </footer>
   );
 }
