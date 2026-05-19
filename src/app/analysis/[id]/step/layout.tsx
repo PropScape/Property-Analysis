@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { StoreHydration } from "@/components/wizard/StoreHydration";
@@ -49,6 +50,16 @@ export default async function WizardLayout({
 }: WizardLayoutProps) {
   const { id } = await params;
 
+  // Derive the active step from the URL pathname (set by middleware as
+  // x-pathname header). This is more accurate than analysis.current_step
+  // for stepper highlighting because it reflects the page the user is
+  // actually on, not just their furthest-reached step.
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  // Path shape: /analysis/[id]/step/[n]
+  const urlStepMatch = pathname.match(/\/step\/([\d]+)/);
+  const urlStep = urlStepMatch ? parseInt(urlStepMatch[1], 10) : null;
+
   // 1. Fetch analysis and verify ownership
   const supabase = await createClient();
   const {
@@ -70,7 +81,9 @@ export default async function WizardLayout({
     notFound();
   }
 
-  const displayStep = analysis.current_step;
+  // Use the URL step for stepper display; fall back to DB value if URL has no step.
+  const displayStep =
+    urlStep !== null && !isNaN(urlStep) ? urlStep : analysis.current_step;
 
   return (
     <>
