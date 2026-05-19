@@ -15,6 +15,7 @@ import {
   computeAncillaryCosts,
 } from "@/domain/calculations/acquisition-costs";
 import { formatCentsPlain, applyPercent } from "@/domain/calculations/currency";
+import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
 import { Receipt, Plus, Trash2 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -73,16 +74,16 @@ export function Step4Form({
 
   // Field state — DB > Zustand > defaults
   const [brokerFee, setBrokerFee] = useState(
-    (initialData?.broker_fee_percent ?? saved.broker_fee_percent ?? 3.57).toString()
+    (initialData?.broker_fee_percent ?? saved.broker_fee_percent ?? WIZARD_DEFAULTS.brokerFeePercent).toString()
   );
   const [notaryFee, setNotaryFee] = useState(
-    (initialData?.notary_fee_percent ?? saved.notary_fee_percent ?? 1.5).toString()
+    (initialData?.notary_fee_percent ?? saved.notary_fee_percent ?? WIZARD_DEFAULTS.notaryFeePercent).toString()
   );
   const [landRegistryFee, setLandRegistryFee] = useState(
-    (initialData?.land_registry_fee_percent ?? saved.land_registry_fee_percent ?? 0.5).toString()
+    (initialData?.land_registry_fee_percent ?? saved.land_registry_fee_percent ?? WIZARD_DEFAULTS.landRegistryFeePercent).toString()
   );
   const [bundesland, setBundesland] = useState<Bundesland>(
-    initialData?.bundesland ?? saved.bundesland ?? "NW"
+    initialData?.bundesland ?? saved.bundesland ?? WIZARD_DEFAULTS.defaultBundesland
   );
   const [customItems, setCustomItems] = useState<CustomCostItem[]>(
     initialData?.custom_items ?? saved.custom_items ?? []

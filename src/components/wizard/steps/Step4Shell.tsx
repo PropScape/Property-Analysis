@@ -6,6 +6,7 @@ import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder
 import { Hammer } from "lucide-react";
 import type { Step4Data } from "@/domain/types/wizard";
 import type { Step4LiveData } from "./Step4Form";
+import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
 
 interface Step4ShellProps {
   analysisId: string;
@@ -30,10 +31,10 @@ export function Step4Shell({
 }: Step4ShellProps) {
   const [liveData, setLiveData] = useState<Step4LiveData>({
     purchasePriceCents,
-    brokerFeePercent: initialData?.broker_fee_percent ?? 3.57,
-    notaryFeePercent: initialData?.notary_fee_percent ?? 1.5,
-    landRegistryFeePercent: initialData?.land_registry_fee_percent ?? 0.5,
-    bundesland: initialData?.bundesland ?? "NW",
+    brokerFeePercent: initialData?.broker_fee_percent ?? WIZARD_DEFAULTS.brokerFeePercent,
+    notaryFeePercent: initialData?.notary_fee_percent ?? WIZARD_DEFAULTS.notaryFeePercent,
+    landRegistryFeePercent: initialData?.land_registry_fee_percent ?? WIZARD_DEFAULTS.landRegistryFeePercent,
+    bundesland: initialData?.bundesland ?? WIZARD_DEFAULTS.defaultBundesland,
     customItems: initialData?.custom_items ?? [],
   });
 

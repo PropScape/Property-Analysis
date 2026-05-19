@@ -12,6 +12,7 @@ import type { Step3Data } from "@/domain/types/wizard";
 import { parseToCents, formatCentsPlain } from "@/domain/calculations/currency";
 import { computeRentalKpis } from "@/domain/calculations/rental-kpis";
 import type { RentalKpis } from "@/domain/calculations/rental-kpis";
+import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
 import { CalendarDays, Euro, Zap } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -94,13 +95,13 @@ export function Step3Form({
     initialData?.rent_start_date ?? saved.rent_start_date ?? ""
   );
   const [vacancyRate, setVacancyRate] = useState(
-    initialData?.vacancy_rate_percent ?? saved.vacancy_rate_percent ?? 2
+    initialData?.vacancy_rate_percent ?? saved.vacancy_rate_percent ?? WIZARD_DEFAULTS.vacancyRatePercent
   );
   const [rentGrowthEnabled, setRentGrowthEnabled] = useState(
-    initialData?.rent_growth_enabled ?? saved.rent_growth_enabled ?? true
+    initialData?.rent_growth_enabled ?? saved.rent_growth_enabled ?? WIZARD_DEFAULTS.rentGrowthEnabled
   );
   const [growthRateDisplay, setGrowthRateDisplay] = useState(
-    (initialData?.rent_growth_rate_percent ?? saved.rent_growth_rate_percent ?? 1.5).toString()
+    (initialData?.rent_growth_rate_percent ?? saved.rent_growth_rate_percent ?? WIZARD_DEFAULTS.rentGrowthRatePercent).toString()
   );
   const [error, setError] = useState<string | null>(null);
 
