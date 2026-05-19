@@ -360,7 +360,13 @@ Before finishing, run a self-review checklist:
 - [ ] ESLint passes.
 - [ ] All tests pass (`npm run test` + `npx playwright test`).
 - [ ] **For UI changes:** verified in the browser — static analysis alone
-      cannot catch timing-dependent or visual bugs.
+      cannot catch timing-dependent or visual bugs. Open the browser console
+      and confirm **zero React runtime errors** (red exceptions) during the
+      primary user flow.
+- [ ] **For framework API usage** (`useActionState`, `useTransition`,
+      Server Actions, Suspense, etc.): the **official docs for that API were
+      read before implementation**, not after. Link the doc URL in the JSDoc
+      `@see` tag.
 - [ ] **For domain changes:** 100% test coverage on new/modified functions.
 
 ### Devil's Advocate Protocol
