@@ -91,3 +91,40 @@ export interface Step2Data {
 
 /** Lifecycle status of an analysis record in the database. */
 export type AnalysisStatus = "draft" | "complete" | "archived";
+
+// ---------------------------------------------------------------------------
+// Step 3 — Kaufpreis & Miete (Purchase Price & Rent)
+// ---------------------------------------------------------------------------
+
+/**
+ * Step 3 form data — Purchase Price & Rent.
+ *
+ * @remarks
+ * All monetary values are stored as **integer cents** to avoid float
+ * precision issues. The UI layer formats/parses to EUR display strings.
+ *
+ * See SPEC-WIZARD-STEP3 v1.0.0.
+ */
+export interface Step3Data {
+  /** Purchase price in integer cents (e.g. 35000000 = 350.000 €). */
+  purchase_price_cents: number;
+  /** Monthly cold rent in integer cents (e.g. 125000 = 1.250 €). */
+  cold_rent_cents: number;
+  /** Monthly warm rent in integer cents — optional. */
+  warm_rent_cents?: number;
+  /** Rent start / property handover date as ISO-8601 date string. */
+  rent_start_date: string;
+  /**
+   * Expected vacancy rate as a percentage (e.g. 2.0 = 2%).
+   * Range: 0–10, step 0.5.
+   */
+  vacancy_rate_percent: number;
+  /** Whether annual rent growth is factored in. */
+  rent_growth_enabled: boolean;
+  /**
+   * Annual rent growth rate as a percentage (e.g. 1.5 = 1.5%).
+   * Only relevant when `rent_growth_enabled` is true.
+   */
+  rent_growth_rate_percent?: number;
+}
+
