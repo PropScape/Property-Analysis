@@ -23,6 +23,9 @@ Adopt **Clean Architecture** with a strict **framework-free domain layer**.
 
 ```
 src/
+├── config/          ← Regulatory data + user-overridable defaults. Pure TS.
+│   ├── bundesland.ts    Grunderwerbsteuer rates & dropdown labels
+│   └── wizard-defaults.ts  Form defaults (resolved per-user in future)
 ├── domain/          ← ZERO framework imports. Pure TypeScript + Zod.
 │   ├── calculations/   Financial computation functions
 │   ├── schemas/         Zod validation schemas
@@ -41,8 +44,9 @@ src/
 
 | Layer | Directory | May Import From | May NOT Import From |
 |---|---|---|---|
-| **Domain** | `src/domain/` | Only `zod`, standard lib | `react`, `next`, `@supabase/*`, `zustand` |
-| **Application** | `src/stores/`, `src/actions/` | Domain, Infrastructure | `react` (stores may use framework-agnostic patterns) |
+| **Config** | `src/config/` | `domain/types/` | `react`, `next/*`, components, stores |
+| **Domain** | `src/domain/` | `src/config/`, `zod`, standard lib | `react`, `next`, `@supabase/*`, `zustand` |
+| **Application** | `src/stores/`, `src/actions/` | Domain, Config, Infrastructure | `react` (stores may use framework-agnostic patterns) |
 | **Infrastructure** | `src/lib/supabase/` | Domain (types/schemas) | UI components |
 | **UI** | `src/app/`, `src/components/`, `src/hooks/` | All layers | — |
 
@@ -106,11 +110,22 @@ export function calculatePreTaxCashflow(
 ### Risks
 
 - Layer violations if not enforced. Mitigated by:
-  - Agent persona rules (Backend Agent in `.gemini/GEMINI.md`)
-  - ESLint `no-restricted-imports` rule (future)
+  - Agent standing rule in `docs/context/state.md` (read every session)
+  - ESLint `no-restricted-imports` — **implemented** (see `.eslintrc` `configLayerRule`)
+  - This ADR and ADR-008 — agent checks `docs/adr/` before implementing
   - Code review discipline
+
+### Placement Quick Reference
+
+See [ADR-008](ADR-008-config-layer.md) for the full placement decision table.
+Short form:
+- **Regulatory / reference data** → `src/config/`
+- **User-overridable defaults** → `src/config/`
+- **Pure computation logic** → `src/domain/calculations/`
+- **Magic numbers in a component** → violation — move to config or domain
 
 ## References
 
 - Robert C. Martin, "Clean Architecture" (2017)
 - [ADR-001: Next.js](ADR-001-nextjs-app-router.md) — framework choice
+- [ADR-008: Config Layer](ADR-008-config-layer.md) — centralised configuration
