@@ -23,8 +23,13 @@ const AUTH_PUBLIC_BYPASS = ["/auth/callback", "/auth/verify-email"];
  * See SPEC-AUTH v1.0.0 §4.5 and ADR-007.
  */
 export async function proxy(request: NextRequest) {
-  const response = await updateSession(request);
   const { pathname } = request.nextUrl;
+
+  // Inject x-pathname into the forwarded request headers BEFORE NextResponse.next
+  // so Server Component layouts can read it via headers() from next/headers.
+  // Setting it on the *response* headers does NOT work — headers() only reads
+  // headers that were forwarded with the request. See ADR-007.
+  const response = await updateSession(request, { "x-pathname": pathname });
 
   // Read the session from the refreshed response cookies
   const supabase = createServerClient(
@@ -59,7 +64,8 @@ export async function proxy(request: NextRequest) {
 
   // Forward pathname so Server Component layouts can read the active route
   // without needing child-segment params (e.g. WizardLayout needs [step]).
-  response.headers.set("x-pathname", pathname);
+  // NOTE: this is handled via additionalRequestHeaders in updateSession above —
+  // NOT here, because response headers are not accessible via headers().
 
   return response;
 }
