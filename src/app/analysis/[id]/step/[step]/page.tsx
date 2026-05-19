@@ -273,8 +273,8 @@ export default async function StepPage({ params }: StepPageProps) {
       fetchSavedStepData(supabase, id, 7),
     ]);
 
-    const step3 = step3Saved as { monthly_cold_rent_cents?: number } | null;
-    const monthlyColdRentCents = step3?.monthly_cold_rent_cents ?? 0;
+    const step3 = step3Saved as { cold_rent_cents?: number } | null;
+    const monthlyColdRentCents = step3?.cold_rent_cents ?? 0;
 
     return (
       <Step7Shell
