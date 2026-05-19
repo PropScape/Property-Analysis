@@ -1,23 +1,107 @@
-import { Building2 } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { AppHeader } from "@/components/app-header";
+import { StatCard } from "@/components/stat-card";
+import { StatusBadge } from "@/components/status-badge";
+import { AnalysisCard } from "@/components/analysis-card";
+import { EmptyState } from "@/components/empty-state";
+import { MOCK_ANALYSES } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+import type { AnalysisSummary } from "@/lib/mock-data";
 
 /**
- * Landing page placeholder. Will be replaced by the project overview
- * (analysis list) once SPEC-PROJECT-LIST is implemented.
+ * Project overview page — the entry point for authenticated users.
+ *
+ * @remarks
+ * Displays a list of saved analyses with summary statistics.
+ * Uses mock data until Supabase integration (SPEC-AUTH).
+ *
+ * Implements SPEC-PROJECT-LIST v1.0.0.
  */
-export default function HomePage() {
+export default function ProjectOverviewPage() {
+  const [analyses, setAnalyses] = useState<AnalysisSummary[]>(MOCK_ANALYSES);
+
+  const completedCount = analyses.filter((a) => a.status === "completed").length;
+  const draftCount = analyses.filter((a) => a.status === "draft").length;
+
+  const handleDelete = (id: string) => {
+    setAnalyses((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const isEmpty = analyses.length === 0;
+
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6 p-8">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-navy-600 text-white shadow-glow">
-        <Building2 className="h-8 w-8" />
-      </div>
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Immoverse
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Professionelle Immobilien-Investmentanalyse
-        </p>
-      </div>
-    </main>
+    <>
+      <AppHeader />
+
+      <main className="flex-1 px-4 pb-12 pt-24 md:px-8">
+        <div className="mx-auto max-w-[1200px]">
+          {/* Title row */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Meine Analysen
+              </h1>
+              <p className="mt-1 text-muted-foreground">
+                Verwalten Sie Ihre Immobilien-Investmentanalysen
+              </p>
+            </div>
+            <Link
+              href="/analysis/new"
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "shadow-glow"
+              )}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Neue Analyse
+            </Link>
+          </div>
+
+          {isEmpty ? (
+            /* Empty state */
+            <EmptyState className="mt-10" />
+          ) : (
+            <>
+              {/* Summary statistics */}
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <StatCard count={analyses.length} label="Analysen" />
+                <StatCard
+                  count={completedCount}
+                  label="Abgeschlossen"
+                  trailing={<StatusBadge status="completed" />}
+                />
+                <StatCard
+                  count={draftCount}
+                  label="Entwurf"
+                  trailing={<StatusBadge status="draft" />}
+                />
+              </div>
+
+              {/* Analysis cards grid */}
+              <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {analyses
+                  .sort(
+                    (a, b) =>
+                      new Date(b.updatedAt).getTime() -
+                      new Date(a.updatedAt).getTime()
+                  )
+                  .map((analysis) => (
+                    <AnalysisCard
+                      key={analysis.id}
+                      analysis={analysis}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+    </>
   );
 }

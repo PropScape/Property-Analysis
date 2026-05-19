@@ -9,8 +9,6 @@ test.describe("Smoke test", () => {
     await page.goto("/");
 
     await expect(page).toHaveTitle(/Immoverse/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Immoverse"
-    );
+    await expect(page.getByText("Immoverse").first()).toBeVisible();
   });
 });
