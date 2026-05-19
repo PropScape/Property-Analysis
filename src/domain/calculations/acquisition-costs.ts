@@ -1,70 +1,26 @@
 /**
- * Domain constants and pure calculation functions for Step 4 — Kaufnebenkosten.
+ * Pure calculation functions for Step 4 — Kaufnebenkosten.
  *
  * @remarks
- * - `BUNDESLAND_TAX_RATES` and `BUNDESLAND_OPTIONS` are domain constants, not
- *   UI concerns; they belong here so server-side validation, reporting, and
- *   future PDF generation can all use the same values.
- * - `computeAncillaryCosts` is a pure function with no side effects.
+ * Regulatory data (`BUNDESLAND_TAX_RATES`, `BUNDESLAND_OPTIONS`) lives in
+ * `src/config/bundesland.ts` — the single source of truth for values that
+ * change when German state laws change. This module re-exports them for
+ * convenience so callers only need one import path.
+ *
+ * `computeAncillaryCosts` is a pure function with no side effects.
  *
  * See SPEC-WIZARD-STEP4 v1.0.0.
  */
 
 import type { Bundesland, CustomCostItem } from "@/domain/types/wizard";
 import { applyPercent } from "@/domain/calculations/currency";
+import { BUNDESLAND_TAX_RATES } from "@/config/bundesland";
+
+// Re-export config so callers can use a single import path.
+export { BUNDESLAND_TAX_RATES, BUNDESLAND_OPTIONS } from "@/config/bundesland";
 
 // ---------------------------------------------------------------------------
-// Tax rate constants
-// ---------------------------------------------------------------------------
-
-/**
- * Grunderwerbsteuer rates per Bundesland (as of 2024).
- *
- * @remarks
- * Source: official German transfer tax rates. Stored as percentages (e.g. 6.5
- * for 6.5%). Changes require a patch-version bump on SPEC-WIZARD-STEP4.
- */
-export const BUNDESLAND_TAX_RATES: Record<Bundesland, number> = {
-  BY: 3.5,  // Bayern
-  BW: 5.0,  // Baden-Württemberg
-  BE: 6.0,  // Berlin
-  BB: 6.5,  // Brandenburg
-  HB: 5.0,  // Bremen
-  HH: 5.5,  // Hamburg
-  HE: 6.0,  // Hessen
-  MV: 6.0,  // Mecklenburg-Vorpommern
-  NI: 5.0,  // Niedersachsen
-  NW: 6.5,  // Nordrhein-Westfalen
-  RP: 5.0,  // Rheinland-Pfalz
-  SL: 6.5,  // Saarland
-  SN: 5.5,  // Sachsen
-  ST: 5.0,  // Sachsen-Anhalt
-  SH: 6.5,  // Schleswig-Holstein
-  TH: 6.5,  // Thüringen
-};
-
-/** Human-readable Bundesland select options sorted alphabetically by name. */
-export const BUNDESLAND_OPTIONS: { key: Bundesland; label: string }[] = [
-  { key: "BW", label: "Baden-Württemberg" },
-  { key: "BY", label: "Bayern" },
-  { key: "BE", label: "Berlin" },
-  { key: "BB", label: "Brandenburg" },
-  { key: "HB", label: "Bremen" },
-  { key: "HH", label: "Hamburg" },
-  { key: "HE", label: "Hessen" },
-  { key: "MV", label: "Mecklenburg-Vorpommern" },
-  { key: "NI", label: "Niedersachsen" },
-  { key: "NW", label: "Nordrhein-Westfalen" },
-  { key: "RP", label: "Rheinland-Pfalz" },
-  { key: "SL", label: "Saarland" },
-  { key: "SN", label: "Sachsen" },
-  { key: "ST", label: "Sachsen-Anhalt" },
-  { key: "SH", label: "Schleswig-Holstein" },
-  { key: "TH", label: "Thüringen" },
-];
-
-// ---------------------------------------------------------------------------
-// Calculation
+// Types
 // ---------------------------------------------------------------------------
 
 /** Itemised ancillary cost breakdown produced by `computeAncillaryCosts`. */
@@ -92,6 +48,10 @@ export interface AncillaryCostBreakdown {
   ancillaryRatePercent: number;
 }
 
+// ---------------------------------------------------------------------------
+// Calculation
+// ---------------------------------------------------------------------------
+
 /**
  * Computes the full ancillary cost breakdown for Step 4.
  *
@@ -103,8 +63,8 @@ export interface AncillaryCostBreakdown {
  * @param customItems                - User-defined additional cost items.
  *
  * @example
- * computeAncillaryCosts(14_700_000, 3.57, 1.5, 0.5, "NW", [])
- * // → { brokerCents: 524_790, transferTaxPercent: 6.5, ... }
+ * computeAncillaryCosts(35_000_000, 3.57, 1.5, 0.5, "NW", [])
+ * // → { brokerCents: 1_249_500, transferTaxPercent: 6.5, ancillaryRatePercent: 12.07, ... }
  */
 export function computeAncillaryCosts(
   purchasePriceCents: number,
