@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full antialiased bg-[#F8FAFC]">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien-Rendite-Rechner - Hausgeld</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1e3a8a',
+                            700: '#1e40af',
+                            800: '#1d4ed8',
+                            900: '#172554',
+                            950: '#0f172a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'glow': '0 0 20px rgba(30, 58, 138, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Value Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #1e3a8a;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        .dashed-divider {
+            border-top: 1px dashed #cbd5e1;
+        }
+        
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #1e3a8a;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #1e3a8a;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col m-0 p-0 overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/50 shadow-sm h-16">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-navy-600 flex items-center justify-center text-white shadow-glow">
+                    <i class="fa-solid fa-building-user text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-lg tracking-tight hidden sm:block">Roter Faden</span>
+            </div>
+
+            <!-- Desktop Stepper Navigation -->
+            <nav class="hidden lg:flex items-center gap-1.5 flex-1 justify-center max-w-3xl mx-8">
+                <!-- Step 1-6 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <!-- Step 7 (Active) -->
+                <div class="flex flex-col items-center group cursor-default relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center text-sm font-medium shadow-glow z-10 transition-transform group-hover:scale-105">
+                        7
+                    </div>
+                    <span class="absolute top-10 whitespace-nowrap text-xs font-semibold text-navy-600">Hausgeld</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+                
+                <!-- ... Ellipsis for steps 8-14 ... -->
+                <div class="h-[2px] w-6 bg-transparent mx-1 flex items-center justify-center">
+                    <span class="text-slate-300 text-xs tracking-widest">•••</span>
+                </div>
+
+                <!-- Step 15 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        15
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+
+                <!-- Step 16 (Dashboard) -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Progress / User Actions -->
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Schritt 7/16</span>
+                    <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-navy-600 w-[43.75%]"></div>
+                    </div>
+                </div>
+                
+                <button class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+                    <i class="fa-regular fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-1 pt-24 pb-28 lg:pb-20 px-4 md:px-8 max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8 items-start justify-center min-h-[calc(100vh-4rem)]">
+        
+        <!-- Center: Main Form Module -->
+        <section id="form-section" class="w-full max-w-2xl flex flex-col gap-6">
+            
+            <!-- Section Header -->
+            <div class="mb-2">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Hausgeld & Betriebskosten</h1>
+                <p class="text-slate-500 mt-2">Erfasse alle laufenden Kosten, um die monatliche Belastung und die Kostenquote zu berechnen.</p>
+            </div>
+
+            <!-- Form Container -->
+            <div class="bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden p-6 sm:p-8 flex flex-col gap-8">
+                
+                <!-- Hausgeld Split -->
+                <div class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm font-semibold text-slate-900">Monatliches Hausgeld</label>
+                            <span class="text-xs font-medium text-slate-500">Gesamt: 350 €</span>
+                        </div>
+                        
+                        <div class="bg-slate-50/50 rounded-2xl p-5 border border-slate-200 flex flex-col gap-5">
+                            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                                <div class="flex-1 w-full">
+                                    <label class="text-xs font-medium text-slate-500 mb-1 block">Umlagefähig (auf Mieter)</label>
+                                    <div class="relative">
+                                        <input type="number" value="220" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 text-base font-semibold">
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <span class="text-slate-500 font-medium">€</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1">Betriebskosten, Heizung, Wasser</p>
+                                </div>
+                                <div class="flex-1 w-full">
+                                    <label class="text-xs font-medium text-slate-500 mb-1 block">Nicht umlagefähig (Eigentümer)</label>
+                                    <div class="relative">
+                                        <input type="number" value="130" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 text-base font-semibold">
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <span class="text-slate-500 font-medium">€</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-1">Instandhaltung, Verwaltung</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+                
+                <!-- Additional Monthly Costs -->
+                <div class="flex flex-col gap-6">
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Weitere monatliche Kosten</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Property Management -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 mb-1.5 block">Sondereigentumsverwaltung</label>
+                            <div class="relative">
+                                <input type="number" value="25" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 text-base font-medium">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <span class="text-slate-500">€</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Maintenance Reserve -->
+                        <div>
+                            <label class="text-xs font-medium text-slate-600 mb-1.5 block">Zusätzl. Instandhaltungsrücklage</label>
+                            <div class="relative">
+                                <input type="number" value="50" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 text-base font-medium">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <span class="text-slate-500">€</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- Annual One-off Costs -->
+                <div class="flex flex-col gap-6 relative">
+                    <div class="absolute inset-0 bg-slate-50/30 rounded-2xl -m-4 p-4 z-0 border border-slate-100"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4">Einmalige jährliche Kosten</h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Insurance -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 mb-1.5 block">Zusätzliche Versicherungen</label>
+                                <div class="relative">
+                                    <input type="number" value="120" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 text-base font-medium">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-slate-500">€/Jahr</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Utilities Assumptions -->
+                            <div>
+                                <label class="text-xs font-medium text-slate-600 mb-1.5 block">Sonstige Nebenkosten (Puffer)</label>
+                                <div class="relative">
+                                    <input type="number" value="0" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 text-base font-medium">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <span class="text-slate-500">€/Jahr</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Desktop Actions -->
+            <div class="hidden lg:flex items-center justify-between mt-4">
+                <button class="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                    Zurück
+                </button>
+                <button class="px-8 py-3 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] hover:shadow-[0_6px_20px_rgba(30,58,138,0.23)] transition-all flex items-center gap-2 group">
+                    Weiter zu Initial Cashflow
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- Right Side: Impact Preview & Financial Health Sidebar -->
+        <aside id="kpi-right" class="w-full lg:w-80 flex flex-col gap-6 sticky top-24">
+            
+            <!-- Operating Costs Dashboard -->
+            <div class="bg-white rounded-3xl p-6 shadow-card border border-slate-200 relative overflow-hidden">
+                
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-navy-500"></i> Running Costs
+                </h3>
+                
+                <!-- Monthly Total -->
+                <div class="flex flex-col items-center justify-center p-5 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
+                    <span class="text-xs font-medium text-slate-500 mb-1">Eigentümer-Kosten (mtl.)</span>
+                    <span class="text-2xl font-bold text-slate-900 tracking-tight">215,00 €</span>
+                    <span class="text-xs text-slate-400 mt-1">Nicht umlagefähig + Zusatzkosten</span>
+                </div>
+
+                <!-- Cost Ratio (Kostenquote) -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-700">Kostenquote (Kaltmiete)</span>
+                        <span class="text-xs font-bold text-amber-500">24%</span>
+                    </div>
+                    
+                    <!-- Gauge Bar -->
+                    <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                        <div class="h-full bg-emerald-500 w-[20%]"></div>
+                        <div class="h-full bg-amber-400 w-[15%] relative">
+                            <!-- Indicator Pin -->
+                            <div class="absolute top-1/2 -translate-y-1/2 right-[20%] w-1.5 h-3 bg-slate-900 rounded-full shadow-sm"></div>
+                        </div>
+                        <div class="h-full bg-rose-500 w-[65%]"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                        <span>Gut (< 20%)</span>
+                        <span>Hoch (> 35%)</span>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100 my-5">
+
+                <!-- Annual Summary -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-600">Laufende Kosten (p.a.)</span>
+                        <span class="font-semibold text-slate-900">2.580 €</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-600">Einmalige Kosten (p.a.)</span>
+                        <span class="font-semibold text-slate-900">120 €</span>
+                    </div>
+                    <div class="dashed-divider my-1"></div>
+                    <div class="flex justify-between items-center text-sm font-bold">
+                        <span class="text-slate-900">Gesamtkosten (p.a.)</span>
+                        <span class="text-navy-600">2.700 €</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inactive KPI Placeholder (Next Step Hint) -->
+            <div class="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 relative overflow-hidden group opacity-60">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nächster Schritt</h3>
+                <div class="text-lg font-semibold text-slate-600 mt-2">Initial Cashflow</div>
+                <p class="text-xs text-slate-400 mt-2">
+                    Berechne deinen Cashflow vor Steuern basierend auf Mieteinnahmen, Kapitaldienst und Kosten.
+                </p>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- Mobile Sticky Actions -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 z-50 flex items-center gap-3">
+        <button class="w-12 h-12 shrink-0 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <button class="flex-1 py-3.5 px-6 bg-navy-600 active:bg-navy-700 text-white rounded-xl font-semibold text-base shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] transition-all flex items-center justify-center gap-2">
+            Weiter
+            <i class="fa-solid fa-arrow-right text-sm"></i>
+        </button>
+    </div>
+
+</body>
+</html>

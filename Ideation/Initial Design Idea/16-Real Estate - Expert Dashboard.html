@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full antialiased bg-[#F8FAFC]">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien-Rendite-Rechner - Expert Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1e3a8a', // Primary action color
+                            700: '#1e40af',
+                            800: '#1d4ed8',
+                            900: '#172554',
+                            950: '#0f172a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'glow': '0 0 20px rgba(30, 58, 138, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-btn.active {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #1e3a8a;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col m-0 p-0 overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/50 shadow-sm h-16">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-navy-600 flex items-center justify-center text-white shadow-glow">
+                    <i class="fa-solid fa-building-user text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-lg tracking-tight hidden sm:block">Roter Faden</span>
+            </div>
+
+            <!-- Desktop Stepper Navigation -->
+            <nav class="hidden lg:flex items-center gap-1.5 flex-1 justify-center max-w-4xl mx-8">
+                <!-- Steps 1-14 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+
+                <!-- Step 16 (Active) -->
+                <div class="flex flex-col items-center group cursor-default relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center text-sm font-medium shadow-glow z-10 transition-transform group-hover:scale-105">
+                        16
+                    </div>
+                    <span class="absolute top-10 whitespace-nowrap text-xs font-semibold text-navy-600">Expert Dashboard</span>
+                </div>
+            </nav>
+
+            <!-- Mobile Progress / User Actions -->
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Schritt 16/16</span>
+                    <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-navy-600 w-full"></div>
+                    </div>
+                </div>
+                
+                <!-- Share / Download Action -->
+                <div class="hidden sm:flex items-center gap-2">
+                    <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-navy-600 hover:border-navy-200 hover:bg-navy-50 transition-colors shadow-sm" title="Ergebnis herunterladen">
+                        <i class="fa-solid fa-download text-sm"></i>
+                    </button>
+                    <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-navy-600 hover:border-navy-200 hover:bg-navy-50 transition-colors shadow-sm" title="Ergebnis teilen">
+                        <i class="fa-solid fa-share-nodes text-sm"></i>
+                    </button>
+                </div>
+                
+                <button class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+                    <i class="fa-regular fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout with Sidebar -->
+    <div class="flex-1 flex pt-16 h-[calc(100vh-4rem)]">
+        
+        <!-- Sidebar Navigation (Expert Menu) -->
+        <aside class="w-64 bg-white border-r border-slate-200 flex-col hidden lg:flex h-full overflow-y-auto">
+            <div class="p-6">
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Dashboard</h2>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-navy-50 text-navy-600 font-medium">
+                        <i class="fa-solid fa-house w-5 text-center"></i>
+                        Übersicht
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition-colors">
+                        <i class="fa-solid fa-coins w-5 text-center"></i>
+                        Cashflow & Steuern
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition-colors">
+                        <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                        Rendite & EK
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition-colors">
+                        <i class="fa-solid fa-bolt w-5 text-center"></i>
+                        Stresstest
+                    </a>
+                </nav>
+
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-8 mb-4">Quick Links (Edit)</h2>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm transition-colors">
+                        <i class="fa-solid fa-pen-to-square w-5 text-center text-xs"></i>
+                        Kaufpreis & Miete
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm transition-colors">
+                        <i class="fa-solid fa-pen-to-square w-5 text-center text-xs"></i>
+                        Finanzierung
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900 text-sm transition-colors">
+                        <i class="fa-solid fa-pen-to-square w-5 text-center text-xs"></i>
+                        Maßnahmen
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="mt-auto p-6 border-t border-slate-100">
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <h4 class="text-sm font-semibold text-slate-900 mb-1">Exportieren</h4>
+                    <p class="text-xs text-slate-500 mb-3">Laden Sie die vollständige Auswertung als PDF herunter.</p>
+                    <button class="w-full py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-navy-600 transition-colors shadow-sm">
+                        PDF Generieren
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 overflow-y-auto p-4 md:p-8 w-full bg-slate-50">
+            <div class="max-w-[1200px] mx-auto w-full flex flex-col gap-8 pb-20">
+                
+                <!-- Page Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Expert Dashboard</h1>
+                        <p class="text-slate-500 text-sm">Detaillierte Analyse und alle Parameter auf einen Blick.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input type="text" placeholder="Suchen..." class="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy-600/20 focus:border-navy-600 w-64 bg-white">
+                        </div>
+                        <button class="px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 flex items-center gap-2">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Quick Actions Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-[16px] p-6 border border-slate-200 shadow-sm relative overflow-hidden group hover:border-navy-200 transition-colors cursor-pointer">
+                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=')] opacity-50"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-full bg-navy-50 text-navy-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kaufpreis</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-900 mb-1">350.000 €</h3>
+                            <p class="text-sm text-slate-500">inkl. 35.000 € Nebenkosten</p>
+                            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center text-sm font-medium text-navy-600 group-hover:text-navy-700">
+                                <i class="fa-solid fa-pen-to-square mr-2"></i> Bearbeiten
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-[16px] p-6 border border-slate-200 shadow-sm relative overflow-hidden group hover:border-navy-200 transition-colors cursor-pointer">
+                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=')] opacity-50"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Finanzierung</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-slate-900 mb-1">3.5 %</h3>
+                            <p class="text-sm text-slate-500">Sollzins bei 90% Beleihung</p>
+                            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center text-sm font-medium text-slate-600 group-hover:text-slate-900">
+                                <i class="fa-solid fa-pen-to-square mr-2"></i> Bearbeiten
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-[16px] p-6 border border-slate-200 shadow-sm relative overflow-hidden group hover:border-navy-200 transition-colors cursor-pointer">
+                        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNlMmU4ZjAiLz48L3N2Zz4=')] opacity-50"></div>
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cashflow</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-emerald-600 mb-1">+620 €</h3>
+                            <p class="text-sm text-slate-500">Monatlich nach Steuern</p>
+                            <div class="mt-4 pt-4 border-t border-slate-100 flex items-center text-sm font-medium text-slate-600 group-hover:text-slate-900">
+                                <i class="fa-solid fa-arrow-right mr-2"></i> Details ansehen
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-[16px] border border-slate-200 shadow-sm p-6 lg:col-span-2">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="font-semibold text-slate-900">Cashflow & Vermögensaufbau (10 Jahre)</h3>
+                            <div class="flex gap-2">
+                                <button class="px-3 py-1 text-xs font-medium rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200">10J</button>
+                                <button class="px-3 py-1 text-xs font-medium rounded-md bg-white border border-slate-200 text-slate-500 hover:bg-slate-50">30J</button>
+                            </div>
+                        </div>
+                        <div id="expert-chart" class="w-full h-[300px]"></div>
+                    </div>
+                    
+                    <div class="bg-white rounded-[16px] border border-slate-200 shadow-sm p-6 flex flex-col items-center justify-center text-center">
+                        <h3 class="font-semibold text-slate-900 mb-2 w-full text-left">Gesamtrendite (IRR)</h3>
+                        <div class="w-48 h-48 relative my-4">
+                            <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
+                                <path class="text-slate-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" />
+                                <path class="text-navy-600" stroke-dasharray="85, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+                                <path class="text-amber-500" stroke-dasharray="15, 100" stroke-dashoffset="-85" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-3xl font-bold text-slate-900">16,5%</span>
+                                <span class="text-xs text-slate-500 mt-1">Nach Steuern</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-4 w-full text-xs text-slate-500 mt-2">
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-navy-600"></div> EK-Rendite</div>
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-amber-500"></div> Wertsteigerung</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Tables Section -->
+                <div class="bg-white rounded-[16px] border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="font-semibold text-slate-900">Detaillierte Zahlungsströme (Jahr 1)</h3>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-md bg-white text-slate-600 hover:bg-slate-50"><i class="fa-solid fa-download mr-1"></i> CSV</button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-4 font-medium">Position</th>
+                                    <th class="px-6 py-4 font-medium">Kategorie</th>
+                                    <th class="px-6 py-4 font-medium text-right">Betrag p.M.</th>
+                                    <th class="px-6 py-4 font-medium text-right">Betrag p.a.</th>
+                                    <th class="px-6 py-4 font-medium text-center">Status</th>
+                                    <th class="px-6 py-4 font-medium text-center">Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Kaltmiete (Soll)</td>
+                                    <td class="px-6 py-4 text-slate-500">Einnahmen</td>
+                                    <td class="px-6 py-4 text-right text-emerald-600 font-medium">+ 1.400 €</td>
+                                    <td class="px-6 py-4 text-right text-emerald-600 font-medium">+ 16.800 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">Fix</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-crimson-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <tr class="bg-slate-50/30 hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Hausgeld (nicht umlagefähig)</td>
+                                    <td class="px-6 py-4 text-slate-500">Kosten</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 150 €</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 1.800 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">Fix</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-navy-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Instandhaltungsrücklage</td>
+                                    <td class="px-6 py-4 text-slate-500">Kosten</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 80 €</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 960 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">Schätzung</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-navy-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <tr class="bg-slate-50/30 hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Mietausfallwagnis (2%)</td>
+                                    <td class="px-6 py-4 text-slate-500">Kosten</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 28 €</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 336 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">Kalkulatorisch</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-navy-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Zins (Annuität)</td>
+                                    <td class="px-6 py-4 text-slate-500">Finanzierung</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 918 €</td>
+                                    <td class="px-6 py-4 text-right text-navy-600 font-medium">- 11.025 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">Zinsbindung 10J</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-navy-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <tr class="bg-slate-50/30 hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Tilgung (Annuität)</td>
+                                    <td class="px-6 py-4 text-slate-500">Finanzierung</td>
+                                    <td class="px-6 py-4 text-right text-slate-600 font-medium">- 525 €</td>
+                                    <td class="px-6 py-4 text-right text-slate-600 font-medium">- 6.300 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs">Vermögensaufbau</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-navy-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <!-- Summary Row -->
+                                <tr class="bg-slate-100/80 border-t-2 border-navy-500">
+                                    <td class="px-6 py-4 font-bold text-slate-900" colspan="2">Cashflow Vor Steuern</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-900">- 301 €</td>
+                                    <td class="px-6 py-4 text-right font-bold text-slate-900">- 3.621 €</td>
+                                    <td class="px-6 py-4 text-center" colspan="2"></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-medium text-slate-900">Steuererstattung (AfA + Zinsen)</td>
+                                    <td class="px-6 py-4 text-slate-500">Steuern</td>
+                                    <td class="px-6 py-4 text-right text-emerald-600 font-medium">+ 921 €</td>
+                                    <td class="px-6 py-4 text-right text-emerald-600 font-medium">+ 11.061 €</td>
+                                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">Errechnet</span></td>
+                                    <td class="px-6 py-4 text-center text-slate-400 hover:text-navy-600 cursor-pointer"><i class="fa-solid fa-pen"></i></td>
+                                </tr>
+                                <!-- Final Summary Row -->
+                                <tr class="bg-slate-800 border-t border-slate-700">
+                                    <td class="px-6 py-4 font-bold text-white" colspan="2">Cashflow Nach Steuern</td>
+                                    <td class="px-6 py-4 text-right font-bold text-emerald-400">+ 620 €</td>
+                                    <td class="px-6 py-4 text-right font-bold text-emerald-400">+ 7.440 €</td>
+                                    <td class="px-6 py-4 text-center" colspan="2"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Audit Trail (Änderungsverlauf) -->
+                <div class="bg-white rounded-[16px] border border-slate-200 shadow-sm p-6">
+                    <h3 class="font-semibold text-slate-900 mb-6">Änderungsverlauf (Audit Log)</h3>
+                    
+                    <div class="relative border-l-2 border-slate-100 ml-3 space-y-8 pb-4">
+                        
+                        <div class="relative pl-8">
+                            <div class="absolute w-4 h-4 bg-emerald-100 border-2 border-emerald-500 rounded-full -left-[9px] top-1"></div>
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-sm font-semibold text-slate-900">Szenario gespeichert</h4>
+                                <span class="text-xs text-slate-400">Heute, 14:30</span>
+                            </div>
+                            <p class="text-xs text-slate-500">Alle Daten validiert und Basis-Szenario erstellt.</p>
+                        </div>
+
+                        <div class="relative pl-8">
+                            <div class="absolute w-4 h-4 bg-white border-2 border-slate-300 rounded-full -left-[9px] top-1"></div>
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-sm font-semibold text-slate-900">Zinssatz angepasst</h4>
+                                <span class="text-xs text-slate-400">Heute, 14:15</span>
+                            </div>
+                            <p class="text-xs text-slate-500">Finanzierung von 3.2% auf 3.5% geändert.</p>
+                            <div class="mt-2 bg-slate-50 p-2 rounded border border-slate-100 flex gap-4 text-xs">
+                                <div class="text-slate-400 line-through">CF: +710 €</div>
+                                <div class="text-navy-600 font-medium">CF: +620 €</div>
+                            </div>
+                        </div>
+
+                        <div class="relative pl-8">
+                            <div class="absolute w-4 h-4 bg-white border-2 border-slate-300 rounded-full -left-[9px] top-1"></div>
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="text-sm font-semibold text-slate-900">Kaufpreis aktualisiert</h4>
+                                <span class="text-xs text-slate-400">Gestern, 09:45</span>
+                            </div>
+                            <p class="text-xs text-slate-500">Kaufpreis von 360.000 € auf 350.000 € verhandelt.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function initializeCharts() {
+            try {
+                const years = Array.from({length: 10}, (_, i) => `J${i+1}`);
+                const cfBeforeTax = [5400, 5450, 5500, 5550, 5600, 5650, 5700, 5750, 5800, 5850];
+                const cfAfterTax = [7440, 7300, 7150, 7000, 6850, 6700, 6550, 6400, 6250, 6100];
+                const equityBuild = [6300, 12800, 19500, 26400, 33500, 40800, 48300, 56000, 63900, 72000]; // Tilgung kumuliert
+
+                const trace1 = {
+                    x: years,
+                    y: cfBeforeTax,
+                    name: 'CF Vor Steuern',
+                    type: 'bar',
+                    marker: { color: '#94a3b8', corner_radius: 4 },
+                    opacity: 0.6
+                };
+
+                const trace2 = {
+                    x: years,
+                    y: cfAfterTax,
+                    name: 'CF Nach Steuern',
+                    type: 'bar',
+                    marker: { color: '#1e3a8a', corner_radius: 4 }
+                };
+
+                const trace3 = {
+                    x: years,
+                    y: equityBuild,
+                    name: 'Vermögensaufbau (kum.)',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    yaxis: 'y2',
+                    line: {
+                        color: '#10B981',
+                        width: 3,
+                        shape: 'spline',
+                        smoothing: 1.3
+                    },
+                    marker: { size: 8 }
+                };
+
+                const layout = {
+                    margin: { t: 20, r: 60, b: 30, l: 40 },
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    showlegend: true,
+                    legend: {
+                        orientation: 'h',
+                        y: -0.15,
+                        font: { color: '#64748b', size: 12 }
+                    },
+                    barmode: 'group',
+                    xaxis: {
+                        showgrid: false,
+                        tickfont: { color: '#94a3b8', size: 10 }
+                    },
+                    yaxis: {
+                        title: 'Cashflow (€)',
+                        showgrid: true,
+                        gridcolor: 'rgba(148, 163, 184, 0.1)',
+                        tickfont: { color: '#94a3b8', size: 10 }
+                    },
+                    yaxis2: {
+                        title: 'Vermögen (€)',
+                        overlaying: 'y',
+                        side: 'right',
+                        showgrid: false,
+                        tickfont: { color: '#10B981', size: 10 }
+                    },
+                    hovermode: 'x unified'
+                };
+
+                const config = {
+                    responsive: true,
+                    displayModeBar: false
+                };
+
+                Plotly.newPlot('expert-chart', [trace1, trace2, trace3], layout, config);
+            } catch(e) {
+                console.error("Chart initialization failed:", e);
+            }
+        }
+
+        window.addEventListener('load', initializeCharts);
+        setTimeout(initializeCharts, 1200);
+    </script>
+</body>
+</html>

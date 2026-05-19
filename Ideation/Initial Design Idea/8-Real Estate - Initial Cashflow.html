@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full antialiased bg-[#F8FAFC]">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien-Rendite-Rechner - Initial Cashflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1e3a8a',
+                            700: '#1e40af',
+                            800: '#1d4ed8',
+                            900: '#172554',
+                            950: '#0f172a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'glow': '0 0 20px rgba(30, 58, 138, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Value Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #1e3a8a;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        .dashed-divider {
+            border-top: 1px dashed #cbd5e1;
+        }
+        
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #1e3a8a;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #1e3a8a;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col m-0 p-0 overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/50 shadow-sm h-16">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-navy-600 flex items-center justify-center text-white shadow-glow">
+                    <i class="fa-solid fa-building-user text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-lg tracking-tight hidden sm:block">Roter Faden</span>
+            </div>
+
+            <!-- Desktop Stepper Navigation -->
+            <nav class="hidden lg:flex items-center gap-1.5 flex-1 justify-center max-w-3xl mx-8">
+                <!-- Step 1-7 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <!-- Step 8 (Active) -->
+                <div class="flex flex-col items-center group cursor-default relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center text-sm font-medium shadow-glow z-10 transition-transform group-hover:scale-105">
+                        8
+                    </div>
+                    <span class="absolute top-10 whitespace-nowrap text-xs font-semibold text-navy-600">Initial Cashflow</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+                
+                <!-- ... Ellipsis for steps 9-14 ... -->
+                <div class="h-[2px] w-6 bg-transparent mx-1 flex items-center justify-center">
+                    <span class="text-slate-300 text-xs tracking-widest">•••</span>
+                </div>
+
+                <!-- Step 15 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        15
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+
+                <!-- Step 16 (Dashboard) -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Progress / User Actions -->
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Schritt 8/16</span>
+                    <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-navy-600 w-[50%]"></div>
+                    </div>
+                </div>
+                
+                <button class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+                    <i class="fa-regular fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-1 pt-24 pb-28 lg:pb-20 px-4 md:px-8 max-w-[1440px] mx-auto w-full flex flex-col gap-8 items-start justify-center min-h-[calc(100vh-4rem)]">
+        
+        <!-- Header -->
+        <div class="w-full flex flex-col items-center text-center max-w-3xl mx-auto mb-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Initial Monthly Cashflow</h1>
+            <p class="text-slate-500 mt-3 text-base">Dein vorläufiger Cashflow vor Steuern. Überprüfe die Zusammensetzung und passe bei Bedarf die Annahmen an.</p>
+        </div>
+
+        <!-- KPI Hero Section -->
+        <section id="cashflow-hero" class="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-card border border-slate-200 overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-50"></div>
+            
+            <div class="relative p-8 sm:p-12 flex flex-col items-center justify-center">
+                <span class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Cashflow vor Steuern (mtl.)</span>
+                
+                <div class="flex items-baseline gap-2">
+                    <span class="text-5xl sm:text-7xl font-bold text-slate-900 tracking-tighter">+ 345</span>
+                    <span class="text-2xl sm:text-3xl font-semibold text-slate-500">€</span>
+                </div>
+                
+                <div class="mt-6 flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    Positiver Cashflow
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Breakdown Table -->
+        <section id="breakdown-table" class="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-card border border-slate-200 overflow-hidden">
+            <div class="p-6 sm:p-8 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-lg font-bold text-slate-900">Zusammensetzung Cashflow</h2>
+                <button class="text-sm text-navy-600 font-medium hover:text-navy-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square"></i> Annahmen anpassen
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Kategorie</th>
+                            <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Betrag (mtl.)</th>
+                            <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center w-20">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <!-- Rent Income -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="py-5 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                        <i class="fa-solid fa-house-chimney"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900">Kaltmiete</p>
+                                        <p class="text-xs text-slate-500">Mieteinnahmen (Schritt 3)</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6 text-right">
+                                <span class="text-base font-bold text-emerald-600">+ 1.250 €</span>
+                            </td>
+                            <td class="py-5 px-6 text-center">
+                                <button class="w-8 h-8 rounded-lg text-slate-400 hover:text-navy-600 hover:bg-navy-50 transition-colors">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Operating Costs -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="py-5 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                                        <i class="fa-solid fa-wrench"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900">Eigentümer-Kosten</p>
+                                        <p class="text-xs text-slate-500">Hausgeld & Instandhaltung (Schritt 7)</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6 text-right">
+                                <span class="text-base font-semibold text-slate-700">- 215 €</span>
+                            </td>
+                            <td class="py-5 px-6 text-center">
+                                <button class="w-8 h-8 rounded-lg text-slate-400 hover:text-navy-600 hover:bg-navy-50 transition-colors">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Financing -->
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="py-5 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                                        <i class="fa-solid fa-building-columns"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900">Kapitaldienst</p>
+                                        <p class="text-xs text-slate-500">Zins & Tilgung (Schritt 6)</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6 text-right">
+                                <span class="text-base font-semibold text-slate-700">- 690 €</span>
+                            </td>
+                            <td class="py-5 px-6 text-center">
+                                <button class="w-8 h-8 rounded-lg text-slate-400 hover:text-navy-600 hover:bg-navy-50 transition-colors">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-slate-50 border-t-2 border-slate-200">
+                            <td class="py-5 px-6 font-bold text-slate-900">Ergebnis (vor Steuern)</td>
+                            <td class="py-5 px-6 text-right text-lg font-bold text-slate-900">+ 345 €</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- Desktop Actions -->
+        <div class="hidden lg:flex w-full max-w-4xl mx-auto items-center justify-between mt-4">
+            <button class="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+                Zurück zu Hausgeld
+            </button>
+            <button class="px-8 py-3 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] hover:shadow-[0_6px_20px_rgba(30,58,138,0.23)] transition-all flex items-center gap-2 group">
+                Weiter zu Zinsrisiko
+                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Mobile Sticky Actions -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 z-50 flex items-center gap-3">
+        <button class="w-12 h-12 shrink-0 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="flex-1 flex flex-col">
+            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Cashflow</span>
+            <span class="text-sm font-bold text-emerald-600">+ 345 €</span>
+        </div>
+        <button class="py-3.5 px-6 bg-navy-600 active:bg-navy-700 text-white rounded-xl font-semibold text-sm shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] transition-all flex items-center justify-center gap-2">
+            Weiter
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+    </div>
+
+</body>
+</html>

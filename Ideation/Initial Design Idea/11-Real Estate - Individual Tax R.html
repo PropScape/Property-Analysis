@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full antialiased bg-[#F8FAFC]">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien-Rendite-Rechner - Individual Tax Rate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1e3a8a', // Primary action color
+                            700: '#1e40af',
+                            800: '#1d4ed8',
+                            900: '#172554',
+                            950: '#0f172a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'glow': '0 0 20px rgba(30, 58, 138, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Custom Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #1e3a8a; /* Changed from crimson */
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        /* Custom Toggle Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #1e3a8a; /* Changed from crimson */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #1e3a8a; /* Changed from crimson */
+        }
+        .toggle-checkbox {
+            right: 0;
+            z-index: 1;
+            border-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .toggle-label {
+            width: 3rem;
+            height: 1.5rem;
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+            transition: all 0.3s;
+        }
+        .toggle-dot {
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .toggle-checkbox:checked ~ .toggle-dot {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col m-0 p-0 overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/50 shadow-sm h-16">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-navy-600 flex items-center justify-center text-white shadow-glow">
+                    <i class="fa-solid fa-building-user text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-lg tracking-tight hidden sm:block">Roter Faden</span>
+            </div>
+
+            <!-- Desktop Stepper Navigation -->
+            <nav class="hidden lg:flex items-center gap-1.5 flex-1 justify-center max-w-3xl mx-8">
+                <!-- Step 1-9 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <!-- Step 10 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-1"></div>
+
+                <!-- Step 11 (Active) -->
+                <div class="flex flex-col items-center group cursor-default relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center text-sm font-medium shadow-glow z-10 transition-transform group-hover:scale-105">
+                        11
+                    </div>
+                    <span class="absolute top-10 whitespace-nowrap text-xs font-semibold text-navy-600">Individual Tax Rate</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+                
+                <!-- ... Ellipsis for steps 12-14 ... -->
+                <div class="h-[2px] w-6 bg-transparent mx-1 flex items-center justify-center">
+                    <span class="text-slate-300 text-xs tracking-widest">•••</span>
+                </div>
+
+                <!-- Step 15 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        15
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+
+                <!-- Step 16 (Dashboard) -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Progress / User Actions -->
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Schritt 11/16</span>
+                    <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-navy-600 w-[68.75%]"></div>
+                    </div>
+                </div>
+                
+                <button class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+                    <i class="fa-regular fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-1 pt-24 pb-28 lg:pb-20 px-4 md:px-8 max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-4rem)]">
+        
+        <!-- Left Column: Input Forms -->
+        <div class="w-full lg:w-7/12 flex flex-col gap-6">
+            
+            <div class="mb-2">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">Persönliche Steuerannahmen</h1>
+                <p class="text-slate-500 text-base leading-relaxed">
+                    Bitte gib deine individuellen steuerlichen Parameter ein, um den genauen Netto-Cashflow nach Steuern zu berechnen.
+                </p>
+            </div>
+
+            <!-- Tax Assumptions Card -->
+            <div id="tax-assumptions-card" class="bg-white rounded-[16px] shadow-sm border border-slate-200 p-6 sm:p-8">
+                
+                <!-- Filing Type Dropdown -->
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Steuerliche Veranlagung (Rechtsform)</label>
+                    <div class="relative">
+                        <select class="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3.5 pr-10 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 transition-colors font-medium">
+                            <option value="privat">Privatperson (Einkommensteuer)</option>
+                            <option value="gmbh">Vermögensverwaltende GmbH</option>
+                            <option value="gewerblich">Gewerblicher Grundstückshandel</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                            <i class="fa-solid fa-chevron-down text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marginal Tax Rate Slider -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="block text-sm font-semibold text-slate-700">Persönlicher Grenzsteuersatz</label>
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1 flex items-center gap-1">
+                            <input type="number" id="tax-rate-input" value="42" class="w-12 bg-transparent text-right font-bold text-slate-900 focus:outline-none" min="0" max="45">
+                            <span class="text-slate-500 font-medium">%</span>
+                        </div>
+                    </div>
+                    <div class="relative pt-2 pb-2">
+                        <input type="range" id="tax-rate-slider" min="0" max="45" value="42" step="1" class="w-full">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2 font-medium">
+                            <span>0%</span>
+                            <span>15%</span>
+                            <span>30%</span>
+                            <span>45%</span>
+                        </div>
+                        <!-- Dynamic track fill via JS -->
+                        <div id="slider-track-fill" class="absolute top-3.5 left-0 h-[6px] bg-navy-600 rounded-l-md pointer-events-none" style="width: 93.33%;"></div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3 flex items-start gap-1.5">
+                        <i class="fa-solid fa-circle-info mt-0.5 text-slate-400"></i>
+                        <span>Der Spitzensteuersatz liegt in Deutschland bei 42%, ab ca. 277.826 € (Ledige) greift die Reichensteuer (45%).</span>
+                    </p>
+                </div>
+
+                <div class="h-[1px] w-full bg-slate-100 my-6"></div>
+
+                <!-- Toggles -->
+                <div class="space-y-6">
+                    <!-- Solidarity Surcharge -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-semibold text-slate-700">Solidaritätszuschlag</h4>
+                            <p class="text-xs text-slate-500 mt-1">5,5% auf die Einkommensteuer</p>
+                        </div>
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                            <input type="checkbox" name="toggle-soli" id="toggle-soli" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                            <label for="toggle-soli" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            <div class="toggle-dot absolute block w-5 h-5 rounded-full bg-white border-2 border-slate-200 cursor-pointer shadow-sm pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <!-- Church Tax -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-semibold text-slate-700">Kirchensteuer</h4>
+                            <p class="text-xs text-slate-500 mt-1">8% oder 9% je nach Bundesland</p>
+                        </div>
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                            <input type="checkbox" name="toggle-church" id="toggle-church" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                            <label for="toggle-church" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            <div class="toggle-dot absolute block w-5 h-5 rounded-full bg-white border-2 border-slate-200 cursor-pointer shadow-sm pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Other Income Notes -->
+            <div id="other-income-card" class="bg-white rounded-[16px] shadow-sm border border-slate-200 p-6 sm:p-8">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Weitere Einkünfte & Notizen (Optional)</label>
+                <p class="text-xs text-slate-500 mb-4">Erfasse hier Besonderheiten wie Verlustvorträge oder andere Einkunftsarten, die deine Steuerlast beeinflussen könnten.</p>
+                <textarea class="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-navy-500/20 focus:border-navy-500 transition-colors resize-none" rows="3" placeholder="Z.B. Vorhandener Verlustvortrag aus Vorjahren: 15.000 €..."></textarea>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Live Impact Preview -->
+        <div class="w-full lg:w-5/12 flex flex-col">
+            
+            <div class="sticky top-24 flex flex-col gap-6">
+                <!-- KPI Summary Widget -->
+                <div id="impact-preview-widget" class="bg-slate-900 rounded-[16px] shadow-card border border-slate-800 p-1 relative overflow-hidden">
+                    <!-- Decorative Background elements -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-navy-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
+                    
+                    <div class="bg-slate-800/50 backdrop-blur-md rounded-[12px] p-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 rounded-full bg-slate-700 text-navy-400 flex items-center justify-center">
+                                <i class="fa-solid fa-chart-area text-sm"></i>
+                            </div>
+                            <h3 class="text-white font-semibold">Live Impact Preview</h3>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-slate-900/80 rounded-xl p-4 border border-slate-700/50">
+                                <span class="text-slate-400 text-xs font-medium uppercase tracking-wider block mb-1">Pre-Tax Cashflow</span>
+                                <span class="text-white text-xl font-bold">345 € <span class="text-slate-500 text-sm font-normal">/ mtl.</span></span>
+                            </div>
+                            <div class="bg-slate-900/80 rounded-xl p-4 border border-navy-500/30 relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-navy-500"></div>
+                                <span class="text-slate-400 text-xs font-medium uppercase tracking-wider block mb-1">After-Tax Cashflow</span>
+                                <span class="text-white text-xl font-bold" id="live-after-tax">198 € <span class="text-slate-500 text-sm font-normal">/ mtl.</span></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex items-center justify-between text-sm mb-2">
+                                <span class="text-slate-400">Effektive Steuerlast (geschätzt)</span>
+                                <span class="text-navy-400 font-semibold" id="effective-tax-display">44.3%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-navy-600 to-navy-400 w-[44.3%]" id="effective-tax-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="bg-slate-900 p-4 rounded-b-[12px] relative z-10 border-t border-slate-800">
+                        <p class="text-xs text-slate-400 mb-3 ml-2 font-medium">Cashflow vs. Tax Rate Curve</p>
+                        <div id="taxCurveChart" class="w-full h-[180px]"></div>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="bg-slate-100 rounded-[12px] p-5 border border-slate-200 flex items-start gap-4">
+                    <div class="mt-0.5 text-slate-400">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Die genaue Steuerberechnung erfolgt unter Berücksichtigung der Gebäudeabschreibung (AfA) und der abzugsfähigen Zinsen im nächsten Schritt. Diese Vorschau zeigt den isolierten Effekt deines Steuersatzes auf den steuerpflichtigen Überschuss.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Desktop Footer Actions -->
+    <div id="footer" class="hidden lg:block border-t border-slate-200 bg-white mt-auto">
+        <div class="max-w-[1440px] mx-auto px-8 py-5 flex items-center justify-between">
+            <button class="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+                Zurück
+            </button>
+            <button class="px-8 py-3 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                Weiter zur AfA
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Sticky Actions -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 z-50 flex items-center gap-3">
+        <button class="w-12 h-12 shrink-0 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <button class="flex-1 py-3.5 px-6 bg-navy-600 active:bg-navy-700 text-white rounded-xl font-semibold text-sm shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] transition-all flex items-center justify-center gap-2">
+            Weiter zur AfA
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Chart Initialization
+        function initializeCharts() {
+            try {
+                const xValues = [0, 10, 20, 30, 40, 42, 45, 50];
+                const preTax = 345;
+                // Simplified mock calculation for visual curve: y = preTax - (preTax * (x/100) * 0.8) 
+                // 0.8 factor represents roughly the taxable portion after deductions
+                const yValues = xValues.map(x => Math.round(preTax - (preTax * (x/100) * 0.8)));
+
+                const trace = {
+                    x: xValues,
+                    y: yValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    fill: 'tozeroy',
+                    line: { 
+                        color: '#3b82f6', // navy-500 equivalent
+                        width: 3,
+                        shape: 'spline',
+                        smoothing: 1.3
+                    },
+                    fillcolor: 'rgba(59, 130, 246, 0.1)', // navy-500 with opacity
+                    hovertemplate: 'Tax Rate: %{x}%<br>Cashflow: %{y}€<extra></extra>',
+                    marker: {
+                        color: '#fff',
+                        size: 6,
+                        line: {
+                            color: '#3b82f6',
+                            width: 2
+                        }
+                    }
+                };
+
+                const layout = {
+                    margin: { t: 10, r: 10, b: 30, l: 40 },
+                    plot_bgcolor: 'transparent',
+                    paper_bgcolor: 'transparent',
+                    showlegend: false,
+                    xaxis: {
+                        title: { text: 'Tax Rate (%)', font: { color: '#64748b', size: 10 } },
+                        tickfont: { color: '#64748b', size: 10 },
+                        gridcolor: 'rgba(100, 116, 139, 0.1)',
+                        zeroline: false
+                    },
+                    yaxis: {
+                        tickfont: { color: '#64748b', size: 10 },
+                        gridcolor: 'rgba(100, 116, 139, 0.1)',
+                        zeroline: false,
+                        range: [0, 400]
+                    },
+                    hovermode: 'x unified'
+                };
+
+                const config = {
+                    responsive: true,
+                    displayModeBar: false,
+                    displaylogo: false
+                };
+
+                Plotly.newPlot('taxCurveChart', [trace], layout, config);
+            } catch (e) {
+                console.error('Error initializing chart:', e);
+            }
+        }
+
+        // Slider logic
+        const slider = document.getElementById('tax-rate-slider');
+        const input = document.getElementById('tax-rate-input');
+        const trackFill = document.getElementById('slider-track-fill');
+        const liveAfterTax = document.getElementById('live-after-tax');
+        const effectiveTaxDisplay = document.getElementById('effective-tax-display');
+        const effectiveTaxBar = document.getElementById('effective-tax-bar');
+        const toggleSoli = document.getElementById('toggle-soli');
+        const toggleChurch = document.getElementById('toggle-church');
+
+        function updateSliderVisuals(val) {
+            const percentage = (val / slider.max) * 100;
+            trackFill.style.width = percentage + '%';
+        }
+
+        function calculateMockImpact() {
+            let baseRate = parseFloat(slider.value);
+            let effectiveRate = baseRate;
+            
+            if(toggleSoli.checked) {
+                effectiveRate += (baseRate * 0.055);
+            }
+            // Simplified church tax mock logic
+            if(toggleChurch.checked) {
+                 effectiveRate += (baseRate * 0.08);
+            }
+
+            effectiveTaxDisplay.textContent = effectiveRate.toFixed(1) + '%';
+            effectiveTaxBar.style.width = Math.min(effectiveRate, 100) + '%';
+
+            // Mock cashflow calc: 345 pre-tax, assume 80% is taxable
+            const preTax = 345;
+            const taxablePortion = preTax * 0.8;
+            const taxAmount = taxablePortion * (effectiveRate / 100);
+            const afterTax = Math.round(preTax - taxAmount);
+            
+            liveAfterTax.innerHTML = `${afterTax} € <span class="text-slate-500 text-sm font-normal">/ mtl.</span>`;
+        }
+
+        slider.addEventListener('input', function() {
+            input.value = this.value;
+            updateSliderVisuals(this.value);
+            calculateMockImpact();
+        });
+
+        input.addEventListener('input', function() {
+            let val = parseInt(this.value);
+            if (val < 0) val = 0;
+            if (val > 45) val = 45;
+            if (!isNaN(val)) {
+                slider.value = val;
+                updateSliderVisuals(val);
+                calculateMockImpact();
+            }
+        });
+
+        toggleSoli.addEventListener('change', calculateMockImpact);
+        toggleChurch.addEventListener('change', calculateMockImpact);
+
+        // Run on load
+        window.addEventListener('load', function() {
+            initializeCharts();
+            updateSliderVisuals(slider.value);
+            calculateMockImpact();
+        });
+        setTimeout(initializeCharts, 1200);
+
+    </script>
+</body>
+</html>

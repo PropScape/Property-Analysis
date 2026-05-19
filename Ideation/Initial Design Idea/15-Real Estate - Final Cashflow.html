@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full antialiased bg-[#F8FAFC]">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien-Rendite-Rechner - Final Cashflow/KPIs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-3.1.1.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1e3a8a',
+                            700: '#1e40af',
+                            800: '#1d4ed8',
+                            900: '#172554',
+                            950: '#0f172a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'glow': '0 0 20px rgba(30, 58, 138, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-btn.active {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #1e3a8a;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col m-0 p-0 overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/50 shadow-sm h-16">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-navy-600 flex items-center justify-center text-white shadow-glow">
+                    <i class="fa-solid fa-building-user text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-lg tracking-tight hidden sm:block">Roter Faden</span>
+            </div>
+
+            <!-- Desktop Stepper Navigation -->
+            <nav class="hidden lg:flex items-center gap-1.5 flex-1 justify-center max-w-4xl mx-8">
+                <!-- Steps 1-13 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+                
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+
+                <!-- Step 14 (Completed) -->
+                <div class="flex flex-col items-center group cursor-pointer relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center text-sm font-medium z-10 transition-transform group-hover:scale-105">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-navy-600 mx-0.5"></div>
+
+                <!-- Step 15 (Active) -->
+                <div class="flex flex-col items-center group cursor-default relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center text-sm font-medium shadow-glow z-10 transition-transform group-hover:scale-105">
+                        15
+                    </div>
+                    <span class="absolute top-10 whitespace-nowrap text-xs font-semibold text-navy-600">Final Cashflow/KPIs</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-0.5"></div>
+
+                <!-- Step 16 (Dashboard) -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Progress / User Actions -->
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Schritt 15/16</span>
+                    <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-navy-600 w-[93.75%]"></div>
+                    </div>
+                </div>
+                
+                <!-- Share / Download Action -->
+                <div class="hidden sm:flex items-center gap-2">
+                    <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-navy-600 hover:border-navy-200 hover:bg-navy-50 transition-colors shadow-sm" title="Ergebnis herunterladen">
+                        <i class="fa-solid fa-download text-sm"></i>
+                    </button>
+                    <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-navy-600 hover:border-navy-200 hover:bg-navy-50 transition-colors shadow-sm" title="Ergebnis teilen">
+                        <i class="fa-solid fa-share-nodes text-sm"></i>
+                    </button>
+                </div>
+                
+                <button class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+                    <i class="fa-regular fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-1 pt-24 pb-28 lg:pb-20 px-4 md:px-8 max-w-[1440px] mx-auto w-full flex flex-col gap-8 min-h-[calc(100vh-4rem)]">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">Results Summary</h1>
+                <p class="text-slate-500 text-base leading-relaxed max-w-3xl">
+                    Die finale Auswertung Ihres Investments. Überprüfen Sie Cashflow, Renditekennzahlen und die Stresstest-Szenarien, bevor Sie ins Expert Dashboard wechseln.
+                </p>
+            </div>
+            
+            <!-- Overall Status Badge -->
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="font-semibold text-sm">Investment Positiv</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Left Column: Main Results & Tabs -->
+            <div class="w-full lg:w-8/12 flex flex-col gap-6">
+                
+                <!-- Tab Navigation -->
+                <div class="bg-white rounded-t-[16px] border-b border-slate-200 flex overflow-x-auto">
+                    <button class="tab-btn active px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap" onclick="switchTab('cashflow-tab', this)">
+                        <i class="fa-solid fa-money-bill-trend-up mr-2"></i> Cashflow & Steuern
+                    </button>
+                    <button class="tab-btn px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap" onclick="switchTab('equity-tab', this)">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> Eigenkapital & Rendite
+                    </button>
+                    <button class="tab-btn px-6 py-4 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors whitespace-nowrap" onclick="switchTab('stress-tab', this)">
+                        <i class="fa-solid fa-bolt mr-2"></i> Stresstest Highlights
+                    </button>
+                </div>
+
+                <!-- Tab Content: Cashflow -->
+                <div id="cashflow-tab" class="tab-content active bg-white rounded-b-[16px] shadow-sm border border-slate-200 border-t-0 p-6 sm:p-8 -mt-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Cashflow Before Tax -->
+                        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-sm font-semibold text-slate-600 uppercase tracking-wide">Cashflow (Vor Steuern)</h3>
+                                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-md">Positiv</span>
+                            </div>
+                            <div class="text-3xl font-bold text-slate-900 mb-1">+ 450 € <span class="text-base font-normal text-slate-500">/ Monat</span></div>
+                            <div class="text-sm text-slate-500">+ 5.400 € p.a.</div>
+                        </div>
+
+                        <!-- Cashflow After Tax -->
+                        <div class="bg-slate-900 rounded-xl p-5 border border-slate-800 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-navy-600/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3"></div>
+                            <div class="relative z-10">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wide">Cashflow (Nach Steuern)</h3>
+                                    <span class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded-md">Optimiert</span>
+                                </div>
+                                <div class="text-3xl font-bold text-white mb-1">+ 620 € <span class="text-base font-normal text-slate-400">/ Monat</span></div>
+                                <div class="text-sm text-slate-400">+ 7.440 € p.a. inkl. Steuererstattung</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="font-semibold text-slate-900 mb-4">Cashflow Entwicklung (10 Jahre)</h4>
+                    <div id="cashflow-chart" class="w-full h-[300px] mb-6 border border-slate-100 rounded-xl p-2 bg-slate-50/50"></div>
+                    
+                    <div class="bg-navy-50 border border-navy-100 rounded-xl p-4 flex gap-4 items-start">
+                        <div class="w-8 h-8 rounded-full bg-navy-100 text-navy-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fa-solid fa-scale-balanced text-sm"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-navy-900 text-sm mb-1">Steuer-Effekt</h5>
+                            <p class="text-sm text-navy-800/80 leading-relaxed">
+                                Durch Abschreibung (AfA) und Zinsabzug entsteht ein steuerlicher Verlust, der Ihre persönliche Steuerlast senkt. Dies führt zu einer effektiven Steuererstattung von ca. 2.040 € im ersten Jahr.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Equity & Yield -->
+                <div id="equity-tab" class="tab-content bg-white rounded-b-[16px] shadow-sm border border-slate-200 border-t-0 p-6 sm:p-8 -mt-6">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Eigenkapitalbedarf</div>
+                            <div class="text-xl font-bold text-slate-900">45.000 €</div>
+                            <div class="text-xs text-slate-400 mt-1">inkl. Kaufnebenkosten</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Bruttorendite</div>
+                            <div class="text-xl font-bold text-slate-900">4.8 %</div>
+                            <div class="text-xs text-slate-400 mt-1">Soll-Miete / Kaufpreis</div>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-transparent to-navy-50/50"></div>
+                            <div class="relative z-10">
+                                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Eigenkapitalrendite</div>
+                                <div class="text-xl font-bold text-navy-600">16.5 %</div>
+                                <div class="text-xs text-slate-400 mt-1">Nach Steuern (Jahr 1)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-slate-900 border-b border-slate-100 pb-2">Vermögensaufbau (Paydown)</h4>
+                        
+                        <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
+                                    <i class="fa-solid fa-piggy-bank"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-800">Tilgung im Jahr 1</div>
+                                    <div class="text-xs text-slate-500">Zwangsparen durch den Mieter</div>
+                                </div>
+                            </div>
+                            <div class="font-semibold text-slate-900">8.000 €</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center">
+                                    <i class="fa-solid fa-arrow-trend-up"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-slate-800">Wertsteigerung (Annahme: 2% p.a.)</div>
+                                    <div class="text-xs text-slate-500">Theoretischer Wertzuwachs</div>
+                                </div>
+                            </div>
+                            <div class="font-semibold text-slate-900">8.000 €</div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-slate-800 text-white rounded-xl mt-2">
+                            <div class="font-medium">Total Return (Jahr 1)</div>
+                            <div class="font-bold text-lg text-emerald-400">~ 23.440 €</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tab Content: Stress Test -->
+                <div id="stress-tab" class="tab-content bg-white rounded-b-[16px] shadow-sm border border-slate-200 border-t-0 p-6 sm:p-8 -mt-6">
+                    <p class="text-sm text-slate-500 mb-6">Was passiert, wenn sich Rahmenbedingungen verschlechtern? Die Simulation zeigt die Auswirkungen auf den Cashflow nach Steuern.</p>
+                    
+                    <div class="space-y-4">
+                        <!-- Scenario 1 -->
+                        <div class="border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="mt-0.5 w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-house-crack text-xs"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-slate-900">Mietausfallwagnis steigt</h5>
+                                    <p class="text-xs text-slate-500">Von 2% auf 10% (Leerstand)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 sm:min-w-[200px] justify-between">
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-slate-900">380 € <span class="text-xs font-normal text-slate-500">/ M</span></div>
+                                    <div class="text-xs text-slate-400">-240 € Differenz</div>
+                                </div>
+                                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-md w-16 text-center">OK</span>
+                            </div>
+                        </div>
+
+                        <!-- Scenario 2 -->
+                        <div class="border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="mt-0.5 w-6 h-6 rounded-full bg-navy-100 text-navy-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-percent text-xs"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-slate-900">Zinsänderungsrisiko (Anschlussfinanzierung)</h5>
+                                    <p class="text-xs text-slate-500">Zins steigt auf 6.0%</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 sm:min-w-[200px] justify-between">
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-navy-600">-120 € <span class="text-xs font-normal text-navy-600/70">/ M</span></div>
+                                    <div class="text-xs text-slate-400">-740 € Differenz</div>
+                                </div>
+                                <span class="bg-navy-100 text-navy-700 text-xs font-bold px-2 py-1 rounded-md w-16 text-center">Risk</span>
+                            </div>
+                        </div>
+
+                        <!-- Scenario 3 -->
+                        <div class="border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="mt-0.5 w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-wrench text-xs"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-medium text-slate-900">Unerwartete Instandhaltung</h5>
+                                    <p class="text-xs text-slate-500">+ 5.000 € Einmalkosten (J1)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 sm:min-w-[200px] justify-between">
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-slate-900">410 € <span class="text-xs font-normal text-slate-500">/ M</span></div>
+                                    <div class="text-xs text-slate-400">Steuer abgefedert</div>
+                                </div>
+                                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-md w-16 text-center">OK</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Expert Dashboard Teaser -->
+            <div class="w-full lg:w-4/12 flex flex-col gap-6">
+                
+                <div class="bg-slate-900 rounded-[16px] shadow-card border border-slate-800 p-6 sm:p-8 relative overflow-hidden flex flex-col h-full min-h-[400px]">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-navy-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-slate-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
+                    
+                    <div class="relative z-10 flex flex-col h-full">
+                        <div class="w-12 h-12 rounded-xl bg-navy-600 text-white flex items-center justify-center mb-6 shadow-glow">
+                            <i class="fa-solid fa-chart-pie text-xl"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-white mb-3">Bereit für die Tiefe?</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-8">
+                            Alle Daten sind erfasst. Wechseln Sie ins Expert Dashboard für tabellarische Detailansichten, Tilgungspläne über 30 Jahre und erweiterte Szenario-Vergleiche.
+                        </p>
+
+                        <div class="space-y-3 mb-auto">
+                            <div class="flex items-center gap-3 text-slate-300 text-sm">
+                                <i class="fa-solid fa-check text-emerald-400"></i> Detaillierter Zahlungsstrom
+                            </div>
+                            <div class="flex items-center gap-3 text-slate-300 text-sm">
+                                <i class="fa-solid fa-check text-emerald-400"></i> Steuer-Abschreibungsplan
+                            </div>
+                            <div class="flex items-center gap-3 text-slate-300 text-sm">
+                                <i class="fa-solid fa-check text-emerald-400"></i> PDF-Export & Reporting
+                            </div>
+                        </div>
+
+                        <button class="w-full py-4 mt-8 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold shadow-[0_0_20px_rgba(30,58,138,0.3)] hover:shadow-[0_0_25px_rgba(30,58,138,0.5)] transition-all flex items-center justify-center gap-2 group">
+                            Zur Gesamtübersicht
+                            <i class="fa-solid fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Desktop Footer Actions -->
+    <div id="footer" class="hidden lg:block border-t border-slate-200 bg-white mt-auto z-40 relative">
+        <div class="max-w-[1440px] mx-auto px-8 py-5 flex items-center justify-between">
+            <button class="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left text-sm"></i>
+                Zurück
+            </button>
+            <div class="flex gap-4">
+                <button class="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-download text-sm"></i> PDF Report
+                </button>
+                <button class="px-8 py-3 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    Zum Expert Dashboard
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sticky Actions -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-slate-200 z-50 flex items-center gap-3">
+        <button class="w-12 h-12 shrink-0 bg-white border border-slate-200 text-slate-600 rounded-xl flex items-center justify-center hover:bg-slate-50 transition-colors shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <button class="flex-1 py-3.5 px-6 bg-navy-600 active:bg-navy-700 text-white rounded-xl font-semibold text-sm shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] transition-all flex items-center justify-center gap-2">
+            Expert Dashboard
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabId, btnElement) {
+            // Remove active classes
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active classes
+            btnElement.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            // Re-render chart if cashflow tab is shown to fix width issues
+            if(tabId === 'cashflow-tab') {
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            }
+        }
+
+        // Initialize Plotly Chart
+        function initializeCharts() {
+            try {
+                const years = Array.from({length: 10}, (_, i) => `J${i+1}`);
+                const cfBeforeTax = [5400, 5450, 5500, 5550, 5600, 5650, 5700, 5750, 5800, 5850];
+                const cfAfterTax = [7440, 7300, 7150, 7000, 6850, 6700, 6550, 6400, 6250, 6100];
+
+                const trace1 = {
+                    x: years,
+                    y: cfBeforeTax,
+                    name: 'Vor Steuern',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: {
+                        color: '#64748b',
+                        width: 2,
+                        shape: 'spline',
+                        smoothing: 1.3
+                    },
+                    marker: { size: 6 }
+                };
+
+                const trace2 = {
+                    x: years,
+                    y: cfAfterTax,
+                    name: 'Nach Steuern',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    fill: 'tonexty',
+                    line: {
+                        color: '#1e3a8a',
+                        width: 3,
+                        shape: 'spline',
+                        smoothing: 1.3
+                    },
+                    marker: { size: 6 },
+                    fillcolor: 'rgba(30, 58, 138, 0.1)'
+                };
+
+                const layout = {
+                    margin: { t: 20, r: 20, b: 30, l: 40 },
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    showlegend: true,
+                    legend: {
+                        orientation: 'h',
+                        y: -0.2,
+                        font: { color: '#64748b' }
+                    },
+                    xaxis: {
+                        showgrid: false,
+                        tickfont: { color: '#94a3b8', size: 10 }
+                    },
+                    yaxis: {
+                        showgrid: true,
+                        gridcolor: 'rgba(148, 163, 184, 0.1)',
+                        tickfont: { color: '#94a3b8', size: 10 },
+                        ticksuffix: ' €'
+                    },
+                    hovermode: 'x unified'
+                };
+
+                const config = {
+                    responsive: true,
+                    displayModeBar: false
+                };
+
+                Plotly.newPlot('cashflow-chart', [trace1, trace2], layout, config);
+            } catch(e) {
+                console.error("Chart initialization failed:", e);
+            }
+        }
+
+        window.addEventListener('load', initializeCharts);
+        setTimeout(initializeCharts, 1200);
+    </script>
+</body>
+</html>

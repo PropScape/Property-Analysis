@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full antialiased bg-[#F8FAFC]">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien-Rendite-Rechner - Start</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#1e3a8a', // Primary action color
+                            700: '#1e40af',
+                            800: '#1d4ed8',
+                            900: '#172554',
+                            950: '#0f172a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255,255,255,0.5)',
+                        'card': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+                        'glow': '0 0 20px rgba(30, 58, 138, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body { margin: 0; padding: 0; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Accordion transition */
+        .accordion-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            opacity: 1;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-full flex flex-col m-0 p-0 overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-200/50 shadow-sm h-16">
+        <div class="max-w-[1440px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+            
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-navy-600 flex items-center justify-center text-white shadow-glow">
+                    <i class="fa-solid fa-building-user text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-lg tracking-tight hidden sm:block">Roter Faden</span>
+            </div>
+
+            <!-- Desktop Stepper Navigation -->
+            <nav class="hidden lg:flex items-center gap-1.5 flex-1 justify-center max-w-3xl mx-8">
+                <!-- Step 1 (Active) -->
+                <div class="flex flex-col items-center group cursor-default relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-navy-600 text-white flex items-center justify-center text-sm font-medium shadow-glow z-10 transition-transform group-hover:scale-105">
+                        1
+                    </div>
+                    <span class="absolute top-10 whitespace-nowrap text-xs font-semibold text-navy-600">Start</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+                
+                <!-- Step 2 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        2
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+                
+                <!-- Step 3 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        3
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+
+                <!-- Step 4 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        4
+                    </div>
+                </div>
+                
+                <!-- ... Ellipsis for steps 5-14 ... -->
+                <div class="h-[2px] w-6 bg-transparent mx-1 flex items-center justify-center">
+                    <span class="text-slate-300 text-xs tracking-widest">•••</span>
+                </div>
+
+                <!-- Step 15 -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        15
+                    </div>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 mx-1"></div>
+
+                <!-- Step 16 (Dashboard) -->
+                <div class="flex flex-col items-center group cursor-not-allowed relative w-8">
+                    <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center text-sm font-medium z-10">
+                        <i class="fa-solid fa-chart-pie text-xs"></i>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Mobile Progress / User Actions -->
+            <div class="flex items-center gap-4">
+                <div class="lg:hidden flex items-center gap-2 text-sm font-medium text-slate-600">
+                    <span>Schritt 1/16</span>
+                    <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-navy-600 w-[6%]"></div>
+                    </div>
+                </div>
+                
+                <button class="w-9 h-9 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+                    <i class="fa-regular fa-user"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-1 pt-24 pb-20 px-4 md:px-8 max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8 items-start justify-center min-h-[calc(100vh-4rem)]">
+        
+        <!-- Left Side: Inactive KPI Placeholder (Desktop only) -->
+        <aside id="kpi-left" class="hidden lg:flex flex-col gap-4 w-64 opacity-50 transition-opacity duration-500 sticky top-24">
+            <div class="bg-white rounded-2xl p-5 shadow-card border border-slate-100 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fa-solid fa-chart-line text-4xl text-slate-400"></i>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Erwarteter Cashflow</h3>
+                <div class="text-3xl font-bold text-slate-300 blur-[2px] select-none">€ --,--</div>
+                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
+                    <i class="fa-solid fa-lock text-[10px]"></i> Wird im Verlauf berechnet
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-5 shadow-card border border-slate-100 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fa-solid fa-percent text-4xl text-slate-400"></i>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Mietrendite</h3>
+                <div class="text-3xl font-bold text-slate-300 blur-[2px] select-none">--.-- %</div>
+                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
+                    <i class="fa-solid fa-lock text-[10px]"></i> Benötigt Kaufpreis & Miete
+                </p>
+            </div>
+        </aside>
+
+        <!-- Center: Main Onboarding Module -->
+        <section id="hero-onboarding" class="w-full max-w-2xl bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden relative z-10 flex flex-col">
+            
+            <!-- Header Graphic Area -->
+            <div class="h-48 bg-slate-900 relative overflow-hidden">
+                <!-- Abstract architectural / data pattern background -->
+                <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#475569 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                
+                <!-- Glowing accent ring -->
+                <div class="absolute -bottom-12 -right-12 w-64 h-64 rounded-full border border-navy-500/30 shadow-[0_0_40px_rgba(30,58,138,0.2)]"></div>
+                <div class="absolute -bottom-24 -right-24 w-80 h-80 rounded-full border border-navy-500/10"></div>
+
+                <div class="absolute inset-0 flex flex-col justify-center px-8 sm:px-12">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md w-fit mb-4">
+                        <span class="w-2 h-2 rounded-full bg-navy-500 shadow-[0_0_8px_rgba(30,58,138,0.8)] animate-pulse"></span>
+                        <span class="text-xs font-medium text-white tracking-wide">16 Schritte zur Analyse</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                        Dein Immobilien-Investment <br/>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-navy-400 to-navy-600">glasklar berechnet.</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-8 sm:p-12 flex flex-col gap-8">
+                
+                <div class="prose prose-slate max-w-none">
+                    <p class="text-lg text-slate-600 leading-relaxed">
+                        Willkommen beim <strong class="text-slate-900 font-semibold">Roten Faden</strong>. In den nächsten 15 Schritten erfassen wir alle relevanten Daten zu deinem Objekt, der Finanzierung und deinen steuerlichen Rahmenbedingungen. 
+                    </p>
+                    <p class="text-slate-500 mt-4">
+                        Am Ende erhältst du ein detailliertes Expert-Dashboard mit deinem genauen Cashflow vor und nach Steuern sowie eine Risikoanalyse.
+                    </p>
+                </div>
+
+                <!-- Info Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm shrink-0">
+                            <i class="fa-regular fa-clock text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 text-sm">Dauer</h4>
+                            <p class="text-sm text-slate-500 mt-1">Ca. 10-15 Minuten, je nach Vorliegen der Daten.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm shrink-0">
+                            <i class="fa-solid fa-floppy-disk text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 text-sm">Speichern</h4>
+                            <p class="text-sm text-slate-500 mt-1">Dein Fortschritt wird automatisch im Browser gespeichert.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Requirements Accordion -->
+                <div id="requirements-accordion" class="border border-slate-200 rounded-2xl overflow-hidden bg-white">
+                    <div class="accordion-item" onclick="this.classList.toggle('active')">
+                        <button class="w-full px-6 py-4 flex items-center justify-between bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-regular fa-folder-open text-navy-600"></i>
+                                <span class="font-semibold text-slate-800">Was du brauchst (Checkliste)</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-sm accordion-icon"></i>
+                        </button>
+                        <div class="accordion-content px-6 bg-white border-t border-slate-100">
+                            <p class="text-sm text-slate-500 mb-4">Halte im Idealfall folgende Daten bereit, um ein exaktes Ergebnis zu erhalten:</p>
+                            <ul class="space-y-3 mb-2">
+                                <li class="flex items-start gap-3">
+                                    <div class="mt-0.5 w-5 h-5 rounded-full bg-navy-50 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-check text-[10px] text-navy-600"></i>
+                                    </div>
+                                    <span class="text-sm text-slate-700"><strong>Exposé / Objektdaten:</strong> Kaufpreis, Wohnfläche, Baujahr</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="mt-0.5 w-5 h-5 rounded-full bg-navy-50 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-check text-[10px] text-navy-600"></i>
+                                    </div>
+                                    <span class="text-sm text-slate-700"><strong>Mietangaben:</strong> Aktuelle oder erwartete Kaltmiete, Hausgeld</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="mt-0.5 w-5 h-5 rounded-full bg-navy-50 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-check text-[10px] text-navy-600"></i>
+                                    </div>
+                                    <span class="text-sm text-slate-700"><strong>Finanzierungsidee:</strong> Eigenkapital, gewünschte Tilgung, ca. Zinssatz</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <div class="mt-0.5 w-5 h-5 rounded-full bg-navy-50 flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-check text-[10px] text-navy-600"></i>
+                                    </div>
+                                    <span class="text-sm text-slate-700"><strong>Steuern:</strong> Dein ungefährer persönlicher Steuersatz (optional)</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary CTA -->
+                <div class="mt-4 pb-4 sm:pb-0">
+                    <button class="w-full py-4 px-6 bg-navy-600 hover:bg-navy-700 text-white rounded-xl font-semibold text-lg shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] hover:shadow-[0_6px_20px_rgba(30,58,138,0.23)] transition-all duration-200 flex items-center justify-center gap-3 group">
+                        Los geht's
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <p class="text-center text-xs text-slate-400 mt-4">
+                        Schritt 1: Allgemeine Objektdaten
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Right Side: Inactive KPI Placeholder (Desktop only) -->
+        <aside id="kpi-right" class="hidden lg:flex flex-col gap-4 w-64 opacity-50 transition-opacity duration-500 sticky top-24">
+            <div class="bg-white rounded-2xl p-5 shadow-card border border-slate-100 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fa-solid fa-scale-balanced text-4xl text-slate-400"></i>
+                </div>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">ROI (Eigenkapital)</h3>
+                <div class="text-3xl font-bold text-slate-300 blur-[2px] select-none">--.-- %</div>
+                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
+                    <i class="fa-solid fa-lock text-[10px]"></i> Benötigt Finanzierungsdaten
+                </p>
+            </div>
+            
+            <!-- Mini Chart Placeholder -->
+            <div class="bg-white rounded-2xl p-5 shadow-card border border-slate-100 relative overflow-hidden">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Cashflow Verlauf</h3>
+                <div class="h-24 w-full flex items-end gap-1 opacity-20 blur-[1px]">
+                    <div class="w-full bg-slate-200 rounded-t-sm h-[30%]"></div>
+                    <div class="w-full bg-slate-200 rounded-t-sm h-[45%]"></div>
+                    <div class="w-full bg-slate-200 rounded-t-sm h-[60%]"></div>
+                    <div class="w-full bg-slate-200 rounded-t-sm h-[70%]"></div>
+                    <div class="w-full bg-slate-200 rounded-t-sm h-[85%]"></div>
+                    <div class="w-full bg-slate-300 rounded-t-sm h-[100%]"></div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Mobile Sticky CTA (visible only on small screens) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 z-50">
+        <button class="w-full py-3.5 px-6 bg-navy-600 active:bg-navy-700 text-white rounded-xl font-semibold text-base shadow-[0_4px_14px_0_rgba(30,58,138,0.39)] transition-all flex items-center justify-center gap-2">
+            Los geht's
+            <i class="fa-solid fa-arrow-right text-sm"></i>
+        </button>
+    </div>
+
+</body>
+</html>
