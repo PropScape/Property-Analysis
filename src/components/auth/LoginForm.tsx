@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -47,7 +47,7 @@ export function LoginForm() {
     e?.preventDefault();
     const form = e?.target as HTMLFormElement;
     const formData = new FormData(form);
-    formAction(formData);
+    startTransition(() => formAction(formData));
   };
 
   return (
