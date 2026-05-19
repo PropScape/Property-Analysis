@@ -18,6 +18,12 @@ Ready for auth integration and wizard implementation.
 - SPEC-AUTH v1.0.0 — ✅ Implemented (email/password auth, email confirmation)
 - Next: SPEC-WIZARD-START (Welcome screen / Step 1)
 
+## ⚠️ Standing Rules (read before every session)
+
+- **Next.js 16 uses `proxy.ts`, NOT `middleware.ts`.** Never create `src/middleware.ts` — it causes a runtime crash. All edge logic lives in `src/proxy.ts`. See ADR-007.
+- All monetary values are stored as **integer cents** (never floats).
+- No hardcoded strings — use German copy inline for now (i18n migration later).
+
 ## Blockers
 
 - None.
