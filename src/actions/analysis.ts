@@ -172,3 +172,54 @@ export async function saveStepAction(
 
   return ok({ currentStep: nextStep });
 }
+
+// ---------------------------------------------------------------------------
+// deleteAnalysisAction
+// ---------------------------------------------------------------------------
+
+/**
+ * Deletes an analysis record (and its cascade-deleted steps) by ID.
+ *
+ * @remarks
+ * RLS on the `analyses` table ensures only the owner can delete their own
+ * rows — the `.eq("user_id", user.id)` filter is defence-in-depth on top.
+ *
+ * Cascade deletion of `analysis_steps` is handled at the DB level via the
+ * FK `ON DELETE CASCADE` constraint defined in `001_initial_schema.sql`.
+ *
+ * Returns `Result<void>` so the caller (Client Component) can show an inline
+ * error without navigating away if the delete fails.
+ *
+ * See SPEC-PROJECT-LIST v1.0.0 §5 (delete flow).
+ *
+ * @param analysisId - UUID of the analysis to delete
+ */
+export async function deleteAnalysisAction(
+  analysisId: string
+): Promise<Result<void>> {
+  if (!analysisId) {
+    return err("Ungültige Analyse-ID.");
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return err("Nicht authentifiziert.");
+  }
+
+  const { error: dbError } = await supabase
+    .from("analyses")
+    .delete()
+    .eq("id", analysisId)
+    .eq("user_id", user.id); // RLS + defence-in-depth
+
+  if (dbError) {
+    return err("Analyse konnte nicht gelöscht werden.");
+  }
+
+  return ok(undefined);
+}
+

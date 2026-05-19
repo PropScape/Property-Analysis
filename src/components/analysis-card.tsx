@@ -17,12 +17,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import type { AnalysisSummary } from "@/lib/mock-data";
+import type { AnalysisSummary } from "@/domain/types/analysis-summary";
 
 interface AnalysisCardProps {
   analysis: AnalysisSummary;
   /** Called when the user confirms deletion */
   onDelete: (id: string) => void;
+  /** True while a global delete transition is in-flight */
+  isDeleting?: boolean;
   className?: string;
 }
 
@@ -83,16 +85,17 @@ function formatDate(isoString: string): string {
 export function AnalysisCard({
   analysis,
   onDelete,
+  isDeleting = false,
   className,
 }: AnalysisCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLocalDeleting, setIsLocalDeleting] = useState(false);
 
   const handleDelete = () => {
-    setIsDeleting(true);
+    setIsLocalDeleting(true);
     onDelete(analysis.id);
   };
 
-  const editHref = `/analysis/${analysis.id}/step/${analysis.currentStep}`;
+  const editHref = `/analysis/${analysis.id}/step/${analysis.current_step}`;
 
   return (
     <div
@@ -123,52 +126,10 @@ export function AnalysisCard({
           </p>
         )}
 
-        {/* KPI row — only for analyses with KPI data */}
-        {analysis.kpiSnapshot && (
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Kaufpreis
-              </p>
-              <p className="mt-0.5 text-sm font-bold text-foreground">
-                {formatCents(analysis.kpiSnapshot.purchasePriceCents)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Cashflow
-              </p>
-              {(() => {
-                const cf = formatCashflow(
-                  analysis.kpiSnapshot.monthlyCashflowCents
-                );
-                return (
-                  <p
-                    className={cn(
-                      "mt-0.5 text-sm font-bold",
-                      cf.isPositive ? "text-emerald-600" : "text-destructive"
-                    )}
-                  >
-                    {cf.text}
-                  </p>
-                );
-              })()}
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Rendite
-              </p>
-              <p className="mt-0.5 text-sm font-bold text-foreground">
-                {analysis.kpiSnapshot.returnOnEquityPercent.toFixed(1)} %
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Draft step indicator */}
+        {/* KPI row — placeholder until KPI computation is implemented */}
         {analysis.status === "draft" && (
           <p className="mt-4 text-xs text-muted-foreground">
-            Schritt {analysis.currentStep} von 16
+            Schritt {analysis.current_step} von 16
           </p>
         )}
       </div>
@@ -177,7 +138,7 @@ export function AnalysisCard({
       <Separator />
       <div className="flex items-center justify-between px-5 py-3">
         <p className="text-xs text-muted-foreground">
-          Zuletzt bearbeitet: {formatDate(analysis.updatedAt)}
+          Zuletzt bearbeitet: {formatDate(analysis.updated_at)}
         </p>
         <div className="flex items-center gap-1">
           {/* Edit */}
@@ -206,7 +167,7 @@ export function AnalysisCard({
             <AlertDialogTrigger
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:pointer-events-none disabled:opacity-50"
                 aria-label={`${analysis.name} löschen`}
-                disabled={isDeleting}
+                disabled={isLocalDeleting || isDeleting}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </AlertDialogTrigger>

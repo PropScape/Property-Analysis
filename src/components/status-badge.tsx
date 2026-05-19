@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
-import type { AnalysisStatus } from "@/lib/mock-data";
+
+/** Analysis status — mirrors the DB enum `analysis_status`. */
+type AnalysisStatus = "draft" | "completed";
 
 interface StatusBadgeProps {
   status: AnalysisStatus;
