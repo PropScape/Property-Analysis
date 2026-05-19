@@ -20,8 +20,10 @@ introduced. Ready for Step 9 (Zinsrisiko).
 - SPEC-WIZARD-STEP4 v1.0.0 — ✅ Implemented (Kaufnebenkosten, receipt sidebar)
 - SPEC-WIZARD-STEP5 v1.0.0 — ✅ Implemented (Sanierungsmaßnahmen, measure repeater)
 - SPEC-WIZARD-STEP6 v1.0.0 — ✅ Implemented (Finanzierung, LTV slider, annuity calc)
-- SPEC-WIZARD-STEP7 v1.0.0 — ✅ Implemented (Hausgeld & Verwaltung, operating cost ratio)
-- SPEC-WIZARD-STEP8 v1.0.0 — ✅ Implemented (Initial Cashflow, Stepper navigation fix)
+- **Step 7 (Hausgeld)**: Completed ✅
+- **Step 8 (Initial Cashflow)**: Completed ✅
+- **Step 9 (Tax Start Screen)**: Completed ✅
+- **Step 10-16**: Pending
 - Next: SPEC-WIZARD-STEP9 (Zinsrisiko)
 
 ## ⚠️ Standing Rules (read before every session)
