@@ -53,9 +53,9 @@ export function WizardStepper({ analysisId, furthestStep, className }: WizardSte
   return (
     <nav
       aria-label="Wizard-Fortschritt"
-      className={cn("w-full overflow-x-auto", className)}
+      className={cn("w-full overflow-x-auto text-center", className)}
     >
-      <ol className="flex items-center min-w-max px-2 py-1 pb-6">
+      <ol className="inline-flex items-center min-w-max px-2 py-1 pb-6 text-left">
         {Array.from({ length: WIZARD_STEP_COUNT }, (_, i) => i + 1).map(
           (step) => {
             // A step is considered unlocked (completed) if it's <= the furthest step reached.
