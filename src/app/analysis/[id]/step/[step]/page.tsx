@@ -4,10 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { Step1Form } from "@/components/wizard/steps/Step1Form";
 import { Step2Form } from "@/components/wizard/steps/Step2Form";
 import { Step3Shell } from "@/components/wizard/steps/Step3Shell";
+import { Step4Shell } from "@/components/wizard/steps/Step4Shell";
 import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder";
 import { WIZARD_STEP_LABELS } from "@/components/wizard/wizard-constants";
 import { TrendingUp, Percent, Scale, BarChart2 } from "lucide-react";
-import type { Step1Data, Step2Data, Step3Data } from "@/domain/types/wizard";
+import type { Step1Data, Step2Data, Step3Data, Step4Data } from "@/domain/types/wizard";
 
 interface StepPageProps {
   params: Promise<{ id: string; step: string }>;
@@ -167,6 +168,26 @@ export default async function StepPage({ params }: StepPageProps) {
     );
   }
 
-  // ── Steps 4–16 — not yet implemented ──────────────────────────────────────────────────
+  // ── Step 4 ───────────────────────────────────────────────────────────────────────
+  if (stepNumber === 4) {
+    // Fetch step 3 for purchase price (needed for live EUR calculations)
+    const [step3Saved, step4Saved] = await Promise.all([
+      fetchSavedStepData(supabase, id, 3),
+      fetchSavedStepData(supabase, id, 4),
+    ]);
+
+    const step3 = step3Saved as { purchase_price_cents?: number } | null;
+    const purchasePriceCents = step3?.purchase_price_cents ?? 0;
+
+    return (
+      <Step4Shell
+        analysisId={id}
+        initialData={step4Saved as Partial<Step4Data> | null}
+        purchasePriceCents={purchasePriceCents}
+      />
+    );
+  }
+
+  // ── Steps 5–16 — not yet implemented ───────────────────────────────────────────────
   notFound();
 }

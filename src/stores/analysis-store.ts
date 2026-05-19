@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Step1Data, Step2Data, Step3Data } from "@/domain/types/wizard";
+import type { Step1Data, Step2Data, Step3Data, Step4Data } from "@/domain/types/wizard";
 
 /**
  * Zustand store for the 16-step analysis wizard.
@@ -32,7 +32,8 @@ export interface AnalysisStore {
   step1: Partial<Step1Data>;
   step2: Partial<Step2Data>;
   step3: Partial<Step3Data>;
-  // Steps 4–16 will be added in subsequent specs.
+  step4: Partial<Step4Data>;
+  // Steps 5–16 will be added in subsequent specs.
 
   // ── Actions ───────────────────────────────────────────────────────────────
   /** Sets the ID of the persisted analysis after `createAnalysisAction` succeeds. */
@@ -45,6 +46,8 @@ export interface AnalysisStore {
   setStep2: (data: Partial<Step2Data>) => void;
   /** Merges partial Step 3 data into the slice. */
   setStep3: (data: Partial<Step3Data>) => void;
+  /** Merges partial Step 4 data into the slice. */
+  setStep4: (data: Partial<Step4Data>) => void;
   /** Resets the entire store to initial state (e.g. after analysis creation). */
   reset: () => void;
 }
@@ -56,6 +59,7 @@ const initialState: Omit<
   | "setStep1"
   | "setStep2"
   | "setStep3"
+  | "setStep4"
   | "reset"
 > = {
   analysisId: null,
@@ -63,6 +67,7 @@ const initialState: Omit<
   step1: {},
   step2: {},
   step3: {},
+  step4: {},
 };
 
 export const useAnalysisStore = create<AnalysisStore>()(
@@ -78,6 +83,8 @@ export const useAnalysisStore = create<AnalysisStore>()(
         set((state) => ({ step2: { ...state.step2, ...data } })),
       setStep3: (data) =>
         set((state) => ({ step3: { ...state.step3, ...data } })),
+      setStep4: (data) =>
+        set((state) => ({ step4: { ...state.step4, ...data } })),
       reset: () => set({ ...initialState }),
     }),
     {

@@ -93,8 +93,67 @@ export interface Step2Data {
 export type AnalysisStatus = "draft" | "complete" | "archived";
 
 // ---------------------------------------------------------------------------
-// Step 3 — Kaufpreis & Miete (Purchase Price & Rent)
+// Step 4 — Kaufnebenkosten (Acquisition Ancillary Costs)
 // ---------------------------------------------------------------------------
+
+/**
+ * A custom cost line-item added by the user in the "Weitere Nebenkosten"
+ * repeater. Stored as an array in `Step4Data.custom_items`.
+ */
+export interface CustomCostItem {
+  /** Free-text label (e.g. "Wertgutachten"). */
+  label: string;
+  /** Amount in integer cents. */
+  amount_cents: number;
+}
+
+/**
+ * German Bundesland identifier for the property transfer tax lookup.
+ *
+ * The tax rate is a function of the Bundesland — storing the key lets the
+ * domain layer look up the rate independently of UI presentation.
+ */
+export type Bundesland =
+  | "BB" // Brandenburg      6.5%
+  | "BE" // Berlin           6.0%
+  | "BW" // Baden-Württemberg 5.0%
+  | "BY" // Bayern            3.5%
+  | "HB" // Bremen            5.0%
+  | "HE" // Hessen            6.0%
+  | "HH" // Hamburg           5.5%
+  | "MV" // Mecklenburg-Vorp. 6.0%
+  | "NI" // Niedersachsen     5.0%
+  | "NW" // Nordrhein-Westfalen 6.5%
+  | "RP" // Rheinland-Pfalz   5.0%
+  | "SH" // Schleswig-Holstein 6.5%
+  | "SL" // Saarland          6.5%
+  | "SN" // Sachsen           5.5%
+  | "ST" // Sachsen-Anhalt    5.0%
+  | "TH"; // Thüringen        6.5%
+
+/**
+ * Step 4 form data — Kaufnebenkosten.
+ *
+ * @remarks
+ * Standard costs (Makler, Notar, Grundbuch) are stored as percentage floats
+ * so they can be recalculated if the purchase price changes later.
+ * Custom items are stored as integer cents.
+ *
+ * See SPEC-WIZARD-STEP4 v1.0.0.
+ */
+export interface Step4Data {
+  /** Maklerprovision as a percentage (e.g. 3.57 = 3.57%). */
+  broker_fee_percent: number;
+  /** Notarkosten as a percentage (e.g. 1.5 = 1.5%). */
+  notary_fee_percent: number;
+  /** Grundbucheintrag as a percentage (e.g. 0.5 = 0.5%). */
+  land_registry_fee_percent: number;
+  /** Bundesland key — the transfer tax rate is looked up from BUNDESLAND_TAX_RATES. */
+  bundesland: Bundesland;
+  /** User-defined additional cost line items. */
+  custom_items: CustomCostItem[];
+}
+
 
 /**
  * Step 3 form data — Purchase Price & Rent.
