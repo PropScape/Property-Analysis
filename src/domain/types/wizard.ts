@@ -240,3 +240,29 @@ export interface Step5Data {
    */
   financing_repayment_rate_percent: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Step 6 — Finanzierung
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Step 6 form data — Finanzierung.
+ *
+ * @remarks
+ * `equity_cents` determines the loan amount (Total Investment - Equity).
+ * Interest and repayment rates drive the monthly annuity calculation.
+ *
+ * See SPEC-WIZARD-STEP6 v1.0.0.
+ */
+export interface Step6Data {
+  /** User's own capital contributed to the investment in integer cents. */
+  equity_cents: number;
+  /** Annual interest rate for the main loan as a percentage (e.g. 3.8 = 3.8%). */
+  loan_interest_rate_percent: number;
+  /** Initial annual repayment rate for the main loan as a percentage (e.g. 2.0 = 2.0%). */
+  loan_repayment_rate_percent: number;
+  /** Fixed interest period in years. Must be 5, 10, 15, or 20. */
+  loan_fixation_years: number;
+  /** Optional one-off processing fee in integer cents. */
+  loan_processing_fee_cents: number;
+}

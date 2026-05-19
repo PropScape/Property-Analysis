@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Feature Development — Wizard Steps 1–5 complete**
+**Feature Development — Wizard Steps 1–6 complete**
 
-Project scaffold, auth, and project-overview are implemented. Wizard steps 1–5
+Project scaffold, auth, and project-overview are implemented. Wizard steps 1–6
 are live with DB persistence. Domain calculation layer extracted. Config layer
-introduced. Ready for Step 6 (Finanzierung).
+introduced. Ready for Step 7 (Hausgeld & Verwaltung).
 
 ## Active Work
 
@@ -19,7 +19,8 @@ introduced. Ready for Step 6 (Finanzierung).
 - SPEC-WIZARD-STEP3 v1.0.0 — ✅ Implemented (Kaufpreis & Miete, live KPI sidebar)
 - SPEC-WIZARD-STEP4 v1.0.0 — ✅ Implemented (Kaufnebenkosten, receipt sidebar)
 - SPEC-WIZARD-STEP5 v1.0.0 — ✅ Implemented (Sanierungsmaßnahmen, measure repeater)
-- Next: SPEC-WIZARD-STEP6 (Finanzierung)
+- SPEC-WIZARD-STEP6 v1.0.0 — ✅ Implemented (Finanzierung, LTV slider, annuity calc)
+- Next: SPEC-WIZARD-STEP7 (Hausgeld & Verwaltung)
 
 ## ⚠️ Standing Rules (read before every session)
 
@@ -42,6 +43,7 @@ introduced. Ready for Step 6 (Finanzierung).
 
 | Date | Change |
 |---|---|
+| 2026-05-19 | SPEC-WIZARD-STEP6 v1.0.0: Finanzierung — equity & loan form, LTV slider, domain calculation for German Annuity Loan (Kapitaldienst) |
 | 2026-05-19 | SPEC-WIZARD-STEP5 v1.0.0: Sanierungsmaßnahmen — dynamic measure repeater, immediate/deferred split, Impact Preview sidebar, 13 new domain tests |
 | 2026-05-19 | ADR-008: config layer documented; ESLint restriction added; state.md standing rules enforced |
 | 2026-05-19 | refactor(config): wizard-defaults.ts + bundesland.ts — all hardcoded defaults removed from forms |
