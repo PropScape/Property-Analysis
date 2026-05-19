@@ -4,8 +4,20 @@ import { test, expect } from "@playwright/test";
  * E2E tests for the project overview page.
  *
  * Implements verification for SPEC-PROJECT-LIST v1.0.0 acceptance criteria.
+ *
+ * @remarks
+ * These tests require an authenticated Supabase session. They are skipped in
+ * CI (no live credentials) and must be run locally against `npm run dev` with
+ * a real signed-in user.
+ *
+ * To run locally: npx playwright test e2e/project-list.spec.ts
  */
 test.describe("Project Overview", () => {
+  test.skip(
+    !!process.env.CI,
+    "Requires authenticated session — run locally with npm run dev"
+  );
+
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
   });
