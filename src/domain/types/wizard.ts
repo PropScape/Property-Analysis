@@ -187,3 +187,56 @@ export interface Step3Data {
   rent_growth_rate_percent?: number;
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Step 5 — Sanierungsmaßnahmen
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A single renovation or maintenance measure.
+ *
+ * @remarks
+ * `id` is a client-side UUID used as a React key and for array identity.
+ * It is NOT persisted — the measures array is stored as a JSON column;
+ * IDs are re-generated on hydration from the DB.
+ * `cost_cents` is stored as integer cents per the monetary precision rule.
+ *
+ * See SPEC-WIZARD-STEP5 v1.0.0.
+ */
+export interface RenovationMeasure {
+  /** Client-side UUID for React key stability. Not persisted to DB. */
+  id: string;
+  /** Free-text name of the measure (1–100 chars). */
+  label: string;
+  /** Cost in integer cents (e.g. 2_500_000 = 25.000 €). */
+  cost_cents: number;
+  /** true = sofort (immediate); false = über Jahre verteilt (deferred). */
+  is_immediate: boolean;
+  /** true = financed via a separate renovation loan. */
+  is_financed: boolean;
+}
+
+/**
+ * Step 5 form data — Sanierungsmaßnahmen.
+ *
+ * @remarks
+ * Measures array is serialised to JSONB in the `analysis_steps.data` column.
+ * Financing fields are always persisted; they are only semantically active
+ * when at least one measure has `is_financed = true`.
+ *
+ * See SPEC-WIZARD-STEP5 v1.0.0.
+ */
+export interface Step5Data {
+  /** Planned renovation and maintenance measures (max 20). */
+  measures: RenovationMeasure[];
+  /**
+   * Annual interest rate for the renovation loan as a percentage (e.g. 3.5).
+   * Range: 0–20.
+   */
+  financing_interest_rate_percent: number;
+  /**
+   * Annual repayment rate for the renovation loan as a percentage (e.g. 2.0).
+   * Range: 0–20.
+   */
+  financing_repayment_rate_percent: number;
+}

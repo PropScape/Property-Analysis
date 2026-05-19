@@ -7,6 +7,7 @@ import { step1Schema } from "@/domain/schemas/step1";
 import { step2Schema } from "@/domain/schemas/step2";
 import { step3Schema } from "@/domain/schemas/step3";
 import { step4Schema } from "@/domain/schemas/step4";
+import { step5Schema } from "@/domain/schemas/step5";
 import { ok, err } from "@/domain/types/result";
 import type { Result } from "@/domain/types/result";
 import type { Json } from "@/lib/supabase/database.types";
@@ -136,6 +137,13 @@ export async function saveStepAction(
 
   if (stepNumber === 4) {
     const parsed = step4Schema.safeParse(data);
+    if (!parsed.success) {
+      return err(parsed.error.issues.map((i) => i.message).join(", "));
+    }
+  }
+
+  if (stepNumber === 5) {
+    const parsed = step5Schema.safeParse(data);
     if (!parsed.success) {
       return err(parsed.error.issues.map((i) => i.message).join(", "));
     }

@@ -51,6 +51,12 @@ export interface WizardDefaults {
   landRegistryFeePercent: number;
   /** Default Bundesland for the transfer tax dropdown. */
   defaultBundesland: Bundesland;
+
+  // ── Step 5 — Sanierungsmaßnahmen ─────────────────────────────────────────
+  /** Default annual interest rate for a renovation loan in percent. */
+  renovationFinancingInterestPercent: number;
+  /** Default annual repayment rate for a renovation loan in percent. */
+  renovationFinancingRepaymentPercent: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -75,6 +81,10 @@ export const WIZARD_DEFAULTS: WizardDefaults = {
   notaryFeePercent: 1.5,
   landRegistryFeePercent: 0.5,
   defaultBundesland: "NW",
+
+  // Step 5
+  renovationFinancingInterestPercent: 3.5,
+  renovationFinancingRepaymentPercent: 2.0,
 } as const;
 
 // ---------------------------------------------------------------------------

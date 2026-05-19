@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Feature Development — Wizard Steps 1–4 complete**
+**Feature Development — Wizard Steps 1–5 complete**
 
-Project scaffold, auth, and project-overview are implemented. Wizard steps 1–4
+Project scaffold, auth, and project-overview are implemented. Wizard steps 1–5
 are live with DB persistence. Domain calculation layer extracted. Config layer
-introduced. Ready for Step 5 (Sanierungsmaßnahmen).
+introduced. Ready for Step 6 (Finanzierung).
 
 ## Active Work
 
@@ -18,7 +18,8 @@ introduced. Ready for Step 5 (Sanierungsmaßnahmen).
 - SPEC-WIZARD-STEP2 v1.0.0 — ✅ Implemented (Allgemeine Objektdaten)
 - SPEC-WIZARD-STEP3 v1.0.0 — ✅ Implemented (Kaufpreis & Miete, live KPI sidebar)
 - SPEC-WIZARD-STEP4 v1.0.0 — ✅ Implemented (Kaufnebenkosten, receipt sidebar)
-- Next: SPEC-WIZARD-STEP5 (Sanierungsmaßnahmen)
+- SPEC-WIZARD-STEP5 v1.0.0 — ✅ Implemented (Sanierungsmaßnahmen, measure repeater)
+- Next: SPEC-WIZARD-STEP6 (Finanzierung)
 
 ## ⚠️ Standing Rules (read before every session)
 
@@ -41,6 +42,7 @@ introduced. Ready for Step 5 (Sanierungsmaßnahmen).
 
 | Date | Change |
 |---|---|
+| 2026-05-19 | SPEC-WIZARD-STEP5 v1.0.0: Sanierungsmaßnahmen — dynamic measure repeater, immediate/deferred split, Impact Preview sidebar, 13 new domain tests |
 | 2026-05-19 | ADR-008: config layer documented; ESLint restriction added; state.md standing rules enforced |
 | 2026-05-19 | refactor(config): wizard-defaults.ts + bundesland.ts — all hardcoded defaults removed from forms |
 | 2026-05-19 | refactor(domain): domain/calculations/ layer — currency, rental-kpis, acquisition-costs (118 tests) |
