@@ -7,6 +7,7 @@ import { formatCentsEur } from "@/domain/calculations/currency";
 import { computeInitialCashflow } from "@/domain/calculations/cashflow";
 import { saveStepAction } from "@/actions/analysis";
 import { useAnalysisStore } from "@/stores/analysis-store";
+import { cn } from "@/lib/utils";
 
 interface Step8ShellProps {
   analysisId: string;
@@ -76,7 +77,10 @@ export function Step8Shell({
 
       {/* KPI Hero Section */}
       <section className="w-full bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative">
-        <div className={`absolute inset-0 bg-gradient-to-br ${isPositive ? 'from-emerald-50' : 'from-rose-50'} to-transparent opacity-50`}></div>
+        <div className={cn(
+          "absolute inset-0 bg-gradient-to-br to-transparent opacity-50",
+          isPositive ? "from-emerald-50" : "from-rose-50"
+        )}></div>
         
         <div className="relative p-8 sm:p-12 flex flex-col items-center justify-center">
           <span className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">
@@ -90,7 +94,10 @@ export function Step8Shell({
             <span className="text-2xl sm:text-3xl font-semibold text-slate-500">€</span>
           </div>
           
-          <div className={`mt-6 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+          <div className={cn(
+            "mt-6 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium",
+            isPositive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+          )}>
             <TrendingUp className="w-4 h-4" />
             {isPositive ? 'Positiver Cashflow' : 'Negativer Cashflow'}
           </div>
@@ -204,7 +211,10 @@ export function Step8Shell({
             <tfoot>
               <tr className="bg-slate-50 border-t-2 border-slate-200">
                 <td className="py-5 px-6 font-bold text-slate-900">Ergebnis (vor Steuern)</td>
-                <td className={`py-5 px-6 text-right text-lg font-bold ${isPositive ? 'text-emerald-600' : 'text-slate-900'}`}>
+                <td className={cn(
+                  "py-5 px-6 text-right text-lg font-bold",
+                  isPositive ? "text-emerald-600" : "text-slate-900"
+                )}>
                   {monthlyCashflowCents >= 0 ? "+" : "-"} {formatCentsEur(Math.abs(monthlyCashflowCents))}
                 </td>
                 <td></td>
