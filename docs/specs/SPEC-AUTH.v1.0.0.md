@@ -50,8 +50,14 @@ Feature: User Registration
     WHEN they enter a valid email and password (min 8 chars)
     AND click "Registrieren"
     THEN a Supabase account is created
-    AND the user is redirected to / (project overview)
-    AND a success toast "Willkommen bei PropScape!" is shown
+    AND the page shows a "Bitte bestätige deine E-Mail-Adresse" confirmation state
+    AND no session is created until the email link is clicked
+
+  Scenario: Login before email confirmed
+    GIVEN the user registered but has NOT clicked the confirmation link
+    WHEN they attempt to log in on /auth/login
+    THEN an error "Bitte bestätige zuerst deine E-Mail-Adresse." is shown
+    AND the user remains on /auth/login
 
   Scenario: Duplicate email
     GIVEN the user is on /auth/register
@@ -156,6 +162,7 @@ src/app/auth/callback/route.ts   — Supabase PKCE code exchange
 ```
 src/app/auth/login/page.tsx      — Login page (SSC, renders LoginForm)
 src/app/auth/register/page.tsx   — Register page (SSC, renders RegisterForm)
+src/app/auth/verify-email/page.tsx — Static "check your inbox" confirmation page
 ```
 
 ### 4.4 Client Components (form UI only)
@@ -165,8 +172,10 @@ src/components/auth/LoginForm.tsx
 src/components/auth/RegisterForm.tsx
 ```
 
-Forms use `react-hook-form` + `zod` for client-side validation.
-Server Actions handle the actual Supabase calls.
+Forms use **`react-hook-form`** + **`@hookform/resolvers/zod`** for real-time
+client-side validation. The same Zod schema also validates inside the Server
+Action (defence in depth). On `handleSubmit`, the action is called via
+`useTransition` — no full-page reload.
 
 ### 4.5 Middleware update
 
@@ -178,6 +187,17 @@ Server Actions handle the actual Supabase calls.
 
 Add user avatar/email + logout button to `AppHeader` component.
 Reads user from Server Component via `createClient().auth.getUser()`.
+
+### 4.7 Supabase config update
+
+Enable email confirmation in `supabase/config.toml`:
+```toml
+[auth.email]
+enable_confirmations = true
+```
+
+The `/auth/callback` route already handles the PKCE code exchange, so
+the confirmation link from Supabase's email will complete the session.
 
 ---
 
@@ -224,6 +244,7 @@ const registerSchema = z.object({
 | `src/actions/auth.ts` | Server Actions |
 | `src/app/auth/login/page.tsx` | Server Component page |
 | `src/app/auth/register/page.tsx` | Server Component page |
+| `src/app/auth/verify-email/page.tsx` | Static confirmation page |
 | `src/app/auth/callback/route.ts` | Route Handler |
 | `src/components/auth/LoginForm.tsx` | Client Component |
 | `src/components/auth/RegisterForm.tsx` | Client Component |
@@ -244,10 +265,21 @@ const registerSchema = z.object({
 
 ---
 
-## 8. Out of Scope (v1.0.0)
+## 8. Dependencies
+
+| Package | Version | Reason |
+|---|---|---|
+| `react-hook-form` | latest | Real-time per-field validation |
+| `@hookform/resolvers` | latest | Zod schema integration |
+
+Install: `npm install react-hook-form @hookform/resolvers`
+
+---
+
+## 9. Out of Scope (v1.0.0)
 
 - Social login (Google, GitHub)
 - Magic link / OTP
 - Password reset flow
-- Email confirmation requirement (disabled in Supabase config)
 - Account settings / profile page
+- Resend confirmation email UI (Supabase handles this via the email template)

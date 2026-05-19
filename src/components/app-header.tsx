@@ -1,18 +1,29 @@
-import { Building2, User } from "lucide-react";
+import { Building2, LogOut, User } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/server";
+import { signOutAction } from "@/actions/auth";
 
 /**
- * Application header — simplified variant for the project overview.
+ * Application header — async Server Component.
  *
  * @remarks
- * Uses the glass-panel effect from the design system. Shows the logo
- * and a user avatar button. The wizard stepper is NOT rendered here —
- * it only appears inside `/analysis/[id]/step/*` routes.
+ * Reads the current Supabase user server-side and renders a user menu
+ * with the user's email and a logout button. Uses the glass-panel effect
+ * from the design system.
+ *
+ * The wizard stepper is NOT rendered here — it only appears inside
+ * `/analysis/[id]/step/*` routes.
  *
  * See docs/design-system.md §8 for the glass panel specification.
+ * See SPEC-AUTH v1.0.0 §4.6.
  */
-export function AppHeader() {
+export async function AppHeader() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <header className="glass-panel fixed left-0 right-0 top-0 z-50 h-16 border-b border-border/50 shadow-sm">
       <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4 md:px-8">
@@ -30,17 +41,48 @@ export function AppHeader() {
         </Link>
 
         {/* User actions */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-9 w-9 rounded-full"
-            aria-label="Benutzerprofil"
-          >
-            <User className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              {/* User email */}
+              <div className="hidden items-center gap-2 sm:flex">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-100 text-navy-600">
+                  <User className="h-4 w-4" />
+                </div>
+                <span
+                  className="max-w-[180px] truncate text-sm font-medium text-foreground"
+                  title={user.email}
+                >
+                  {user.email}
+                </span>
+              </div>
+
+              {/* Logout */}
+              <form action={signOutAction}>
+                <Button
+                  id="logout-button"
+                  type="submit"
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  aria-label="Abmelden"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Abmelden</span>
+                </Button>
+              </form>
+            </>
+          ) : (
+            <Link
+              href="/auth/login"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              Anmelden
+            </Link>
+          )}
         </div>
       </div>
     </header>
   );
 }
+
