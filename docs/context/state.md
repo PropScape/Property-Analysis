@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Feature Development — Wizard Steps 1–7 complete**
+**Feature Development — Wizard Steps 1–8 complete**
 
-Project scaffold, auth, and project-overview are implemented. Wizard steps 1–7
+Project scaffold, auth, and project-overview are implemented. Wizard steps 1–8
 are live with DB persistence. Domain calculation layer extracted. Config layer
-introduced. Ready for Step 8 (Initial Cashflow).
+introduced. Ready for Step 9 (Zinsrisiko).
 
 ## Active Work
 
@@ -21,7 +21,8 @@ introduced. Ready for Step 8 (Initial Cashflow).
 - SPEC-WIZARD-STEP5 v1.0.0 — ✅ Implemented (Sanierungsmaßnahmen, measure repeater)
 - SPEC-WIZARD-STEP6 v1.0.0 — ✅ Implemented (Finanzierung, LTV slider, annuity calc)
 - SPEC-WIZARD-STEP7 v1.0.0 — ✅ Implemented (Hausgeld & Verwaltung, operating cost ratio)
-- Next: SPEC-WIZARD-STEP8 (Initial Cashflow)
+- SPEC-WIZARD-STEP8 v1.0.0 — ✅ Implemented (Initial Cashflow, Stepper navigation fix)
+- Next: SPEC-WIZARD-STEP9 (Zinsrisiko)
 
 ## ⚠️ Standing Rules (read before every session)
 
@@ -44,6 +45,7 @@ introduced. Ready for Step 8 (Initial Cashflow).
 
 | Date | Change |
 |---|---|
+| 2026-05-19 | SPEC-WIZARD-STEP8 v1.0.0: Initial Cashflow — dynamic KPI dashboard aggregating steps 3-7, forward stepper navigation unlocked |
 | 2026-05-19 | SPEC-WIZARD-STEP7 v1.0.0: Hausgeld & Verwaltung — operating costs dashboard, Kostenquote gauge |
 | 2026-05-19 | SPEC-WIZARD-STEP6 v1.0.0: Finanzierung — equity & loan form, LTV slider, domain calculation for German Annuity Loan (Kapitaldienst) |
 | 2026-05-19 | SPEC-WIZARD-STEP5 v1.0.0: Sanierungsmaßnahmen — dynamic measure repeater, immediate/deferred split, Impact Preview sidebar, 13 new domain tests |

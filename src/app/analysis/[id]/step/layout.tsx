@@ -115,7 +115,7 @@ export default async function WizardLayout({
           </div>
 
           {/* Stepper — Client Component, derives step from usePathname() */}
-          <WizardStepper analysisId={analysis.id} />
+          <WizardStepper analysisId={analysis.id} furthestStep={analysis.current_step} />
         </div>
       </header>
 

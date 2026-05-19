@@ -9,6 +9,8 @@ import { WIZARD_STEP_LABELS, WIZARD_STEP_COUNT } from "./wizard-constants";
 interface WizardStepperProps {
   /** Analysis ID — used to construct step navigation URLs. */
   analysisId: string;
+  /** The furthest step the user has reached (derived from DB current_step). */
+  furthestStep: number;
   /** Optional additional class names. */
   className?: string;
 }
@@ -41,12 +43,12 @@ interface WizardStepperProps {
  *
  * See design-system.md §7.2 (WizardStepper) and §9 (interactive states).
  */
-export function WizardStepper({ analysisId, className }: WizardStepperProps) {
+export function WizardStepper({ analysisId, furthestStep, className }: WizardStepperProps) {
   const pathname = usePathname();
 
   // Derive active step from the current URL: /analysis/[id]/step/[n]
   const match = pathname.match(/\/step\/(\d+)/);
-  const currentStep = match ? parseInt(match[1], 10) : 1;
+  const activeStep = match ? parseInt(match[1], 10) : 1;
 
   return (
     <nav
@@ -56,8 +58,9 @@ export function WizardStepper({ analysisId, className }: WizardStepperProps) {
       <ol className="flex items-center min-w-max px-2 py-1 pb-6">
         {Array.from({ length: WIZARD_STEP_COUNT }, (_, i) => i + 1).map(
           (step) => {
-            const isCompleted = step < currentStep;
-            const isActive = step === currentStep;
+            // A step is considered unlocked (completed) if it's <= the furthest step reached.
+            const isCompleted = step <= furthestStep;
+            const isActive = step === activeStep;
             const isFirst = step === 1;
 
             return (
@@ -67,7 +70,7 @@ export function WizardStepper({ analysisId, className }: WizardStepperProps) {
                   <div
                     className={cn(
                       "h-px w-5 flex-shrink-0 transition-colors duration-300",
-                      step - 1 < currentStep
+                      step <= furthestStep
                         ? "bg-emerald-500"
                         : "bg-slate-200"
                     )}

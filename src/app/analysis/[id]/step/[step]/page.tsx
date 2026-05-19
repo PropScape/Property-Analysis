@@ -8,12 +8,15 @@ import { Step4Shell } from "@/components/wizard/steps/Step4Shell";
 import { Step5Shell } from "@/components/wizard/steps/Step5Shell";
 import { Step6Shell } from "@/components/wizard/steps/Step6Shell";
 import { Step7Shell } from "@/components/wizard/steps/Step7Shell";
+import { Step8Shell } from "@/components/wizard/steps/Step8Shell";
 import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder";
 import { WIZARD_STEP_LABELS } from "@/components/wizard/wizard-constants";
 import { TrendingUp, Percent, Scale, BarChart2 } from "lucide-react";
 import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data } from "@/domain/types/wizard";
 import { computeAncillaryCosts } from "@/domain/calculations/acquisition-costs";
 import { computeRenovationBreakdown } from "@/domain/calculations/renovation";
+import { computeFinancingBreakdown } from "@/domain/calculations/financing";
+import { computeOperatingCostsBreakdown } from "@/domain/calculations/operating-costs";
 import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
 
 interface StepPageProps {
@@ -291,6 +294,73 @@ export default async function StepPage({ params }: StepPageProps) {
     );
   }
 
-  // ── Steps 8–16 — not yet implemented ─────────────────────────────────────
+  // ── Step 8 ──────────────────────────────────────────────────────────────────
+  if (stepNumber === 8) {
+    // We need data from steps 3, 4, 5, 6, 7 to compute everything
+    const [step3Saved, step4Saved, step5Saved, step6Saved, step7Saved] = await Promise.all([
+      fetchSavedStepData(supabase, id, 3),
+      fetchSavedStepData(supabase, id, 4),
+      fetchSavedStepData(supabase, id, 5),
+      fetchSavedStepData(supabase, id, 6),
+      fetchSavedStepData(supabase, id, 7),
+    ]);
+
+    // 1. Rent Income
+    const step3 = step3Saved as Partial<Step3Data> | null;
+    const monthlyColdRentCents = step3?.cold_rent_cents ?? 0;
+    const purchasePriceCents = step3?.purchase_price_cents ?? 0;
+
+    // 2. Ancillary Costs
+    const step4 = step4Saved as Partial<Step4Data> | null;
+    const { totalAncillaryCents } = computeAncillaryCosts(
+      purchasePriceCents,
+      step4?.broker_fee_percent ?? WIZARD_DEFAULTS.brokerFeePercent,
+      step4?.notary_fee_percent ?? WIZARD_DEFAULTS.notaryFeePercent,
+      step4?.land_registry_fee_percent ?? WIZARD_DEFAULTS.landRegistryFeePercent,
+      step4?.bundesland ?? WIZARD_DEFAULTS.defaultBundesland,
+      step4?.custom_items ?? []
+    );
+
+    // 3. Renovation (to get newTotalInvestmentCents)
+    const step5 = step5Saved as Partial<Step5Data> | null;
+    const { newTotalInvestmentCents } = computeRenovationBreakdown(
+      step5?.measures ?? [],
+      purchasePriceCents + totalAncillaryCents
+    );
+
+    // 4. Financing (to get debt service)
+    const step6 = step6Saved as Partial<Step6Data> | null;
+    const { monthlyPaymentCents } = computeFinancingBreakdown(
+      step6?.equity_cents ?? 0,
+      newTotalInvestmentCents,
+      step6?.loan_interest_rate_percent ?? 0,
+      step6?.loan_repayment_rate_percent ?? 0
+    );
+
+    // 5. Operating Costs (to get owner burden)
+    const step7 = step7Saved as Partial<Step7Data> | null;
+    const { ownerCostsPerMonthCents } = computeOperatingCostsBreakdown(
+      {
+        recoverable_costs_per_month_cents: step7?.recoverable_costs_per_month_cents ?? 0,
+        non_recoverable_costs_per_month_cents: step7?.non_recoverable_costs_per_month_cents ?? 0,
+        property_management_fee_per_month_cents: step7?.property_management_fee_per_month_cents ?? 0,
+        maintenance_reserve_per_month_cents: step7?.maintenance_reserve_per_month_cents ?? 0,
+        additional_insurance_per_year_cents: step7?.additional_insurance_per_year_cents ?? 0,
+        other_costs_per_year_cents: step7?.other_costs_per_year_cents ?? 0,
+      },
+      monthlyColdRentCents
+    );
+
+    return (
+      <Step8Shell
+        analysisId={id}
+        monthlyColdRentCents={monthlyColdRentCents}
+        ownerCostsPerMonthCents={ownerCostsPerMonthCents}
+        monthlyPaymentCents={monthlyPaymentCents}
+      />
+    );
+  }
+
+  // ── Steps 9–16 — not yet implemented ─────────────────────────────────────
   notFound();
 }

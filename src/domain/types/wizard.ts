@@ -295,3 +295,18 @@ export interface Step7Data {
   /** Other annual costs (Puffer) in cents per year */
   other_costs_per_year_cents: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Step 8 — Initial Cashflow
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Step 8 form data — Initial Cashflow.
+ *
+ * @remarks
+ * This is a pure dashboard step with no user inputs.
+ * The empty interface is used to persist the completion status of this step.
+ *
+ * See SPEC-WIZARD-STEP8 v1.0.0.
+ */
+export type Step8Data = Record<string, never>;
