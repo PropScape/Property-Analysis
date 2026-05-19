@@ -6,7 +6,7 @@
 
 ## Context
 
-Immoverse is a B2C real estate investment analysis tool built as a 16-step
+PropScape is a B2C real estate investment analysis tool built as a 16-step
 wizard. It needs server-side rendering for SEO (landing/marketing pages), form
 handling for data entry steps, and the ability to serve as a progressive web
 app. Future iOS/Android apps are planned, requiring that business logic be

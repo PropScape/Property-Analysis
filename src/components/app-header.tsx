@@ -25,7 +25,7 @@ export function AppHeader() {
             <Building2 className="h-4 w-4" />
           </div>
           <span className="hidden text-lg font-bold tracking-tight text-foreground sm:block">
-            Immoverse
+            PropScape
           </span>
         </Link>
 

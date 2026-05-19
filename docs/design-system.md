@@ -1,4 +1,4 @@
-# Immoverse — Design System
+# PropScape — Design System
 
 > **Status:** ✅ Finalized
 > **Date:** 2026-05-18
@@ -214,7 +214,7 @@ Sidebar navigation + main content area.
 
 ### 7.1 Shadcn Primitives (install via CLI)
 
-| Component | Usage in Immoverse |
+| Component | Usage in PropScape |
 |---|---|
 | `Button` | Primary actions, secondary actions, icon buttons |
 | `Card` | KPI cards, wizard panels, analysis list items |

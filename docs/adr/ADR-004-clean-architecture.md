@@ -6,7 +6,7 @@
 
 ## Context
 
-Immoverse contains complex financial calculation logic (cashflow analysis, ROI
+PropScape contains complex financial calculation logic (cashflow analysis, ROI
 computation, tax depreciation, stress testing). This logic will need to be
 reused across:
 

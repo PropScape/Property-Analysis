@@ -119,7 +119,7 @@ Feature: Project Overview (Analysis List)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│  [Header] Glass panel, logo "Immoverse", user avatar               │
+│  [Header] Glass panel, logo "PropScape", user avatar               │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  ┌─ Page Title ──────────────────────── [+ Neue Analyse] ─────────┐ │

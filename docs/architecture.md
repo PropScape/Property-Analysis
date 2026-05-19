@@ -1,10 +1,10 @@
-# Immoverse — Architecture
+# PropScape — Architecture
 
 > **Status:** ✅ Decisions Finalized
 > **Date:** 2026-05-18
 > **Pattern:** Clean Architecture (Domain-Centric)
 
-This document captures the architectural decisions for the Immoverse real estate
+This document captures the architectural decisions for the PropScape real estate
 investment analysis application — a B2C tool that guides German consumers
 through a 16-step property investment analysis.
 

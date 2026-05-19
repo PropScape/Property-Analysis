@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 /**
- * Inter font — primary typeface for Immoverse.
+ * Inter font — primary typeface for PropScape.
  * Weights: 400 (body), 500 (medium), 600 (semibold), 700 (bold headings).
  * See docs/design-system.md §3.
  */
@@ -15,8 +15,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Immoverse — Immobilien-Investmentanalyse",
-    template: "%s | Immoverse",
+    default: "PropScape — Immobilien-Investmentanalyse",
+    template: "%s | PropScape",
   },
   description:
     "Professionelle Analyse für Ihre Immobilieninvestments. Cashflow, Rendite und Steuern — alle Kennzahlen auf einen Blick.",

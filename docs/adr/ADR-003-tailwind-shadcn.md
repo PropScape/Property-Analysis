@@ -6,7 +6,7 @@
 
 ## Context
 
-The Immoverse UI follows a glassmorphism-inspired, professional design language
+The PropScape UI follows a glassmorphism-inspired, professional design language
 with a navy/slate color palette, Inter typography, layered glass panels, and
 subtle glow effects. The design was prototyped in 16 HTML mockups using Tailwind
 CSS. A component library is needed that provides accessible, composable

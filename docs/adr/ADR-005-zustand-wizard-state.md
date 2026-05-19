@@ -6,7 +6,7 @@
 
 ## Context
 
-The Immoverse wizard collects data across 16 interconnected steps. Data entered
+The PropScape wizard collects data across 16 interconnected steps. Data entered
 in early steps (e.g., purchase price, rent) affects calculations displayed in
 later steps (e.g., cashflow, ROI). The state management solution must:
 

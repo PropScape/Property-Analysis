@@ -6,7 +6,7 @@
 
 ## Context
 
-Immoverse collects sensitive financial data (income, tax rates, property values)
+PropScape collects sensitive financial data (income, tax rates, property values)
 from German consumers. The application needs:
 
 1. A relational database for structured analysis data.

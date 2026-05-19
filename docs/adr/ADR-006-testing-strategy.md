@@ -6,7 +6,7 @@
 
 ## Context
 
-Immoverse performs financial calculations that directly influence investment
+PropScape performs financial calculations that directly influence investment
 decisions. Incorrect calculations (e.g., wrong tax depreciation, incorrect
 cashflow) could lead users to make poor financial choices. Testing is not
 optional — it is a business requirement.

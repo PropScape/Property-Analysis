@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Immoverse Design Tokens
+ * PropScape Design Tokens
  *
  * Extracted from the 16 HTML design mockups. All values are semantic tokens
  * consumed via Tailwind's utility classes. See docs/design-system.md for the
@@ -65,7 +65,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Immoverse custom: navy brand colors */
+  /* PropScape custom: navy brand colors */
   --color-navy-50: #eff6ff;
   --color-navy-100: #dbeafe;
   --color-navy-200: #bfdbfe;
@@ -78,19 +78,19 @@
   --color-navy-900: #172554;
   --color-navy-950: #0f172a;
 
-  /* Immoverse custom: shadows */
+  /* PropScape custom: shadows */
   --shadow-glass: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
     0 2px 4px -1px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05),
     0 8px 10px -6px rgba(0, 0, 0, 0.01);
   --shadow-glow: 0 0 20px rgba(30, 58, 138, 0.15);
 
-  /* Immoverse custom: card radius */
+  /* PropScape custom: card radius */
   --radius-card: 1rem;
 }
 
 :root {
-  /* Immoverse light theme — navy/slate palette */
+  /* PropScape light theme — navy/slate palette */
   --background: oklch(0.98 0.003 247.858); /* slate-50: #f8fafc */
   --foreground: oklch(0.129 0.042 264.695); /* slate-900: #0f172a */
   --card: oklch(1 0 0); /* white */
@@ -110,7 +110,7 @@
   --input: oklch(0.929 0.013 255.508); /* slate-200 */
   --ring: oklch(0.301 0.085 262.879); /* navy-600 */
 
-  /* Chart tokens — Immoverse dashboard colors */
+  /* Chart tokens — PropScape dashboard colors */
   --chart-1: oklch(0.301 0.085 262.879); /* navy-600 (primary) */
   --chart-2: oklch(0.696 0.17 162.48); /* emerald-500 */
   --chart-3: oklch(0.769 0.188 70.08); /* amber-500 */

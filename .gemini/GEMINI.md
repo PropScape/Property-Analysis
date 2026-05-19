@@ -1,14 +1,14 @@
-# Immoverse — Project-Local Agent Configuration
+# PropScape — Project-Local Agent Configuration
 
 > This file **supplements** the global `~/.gemini/GEMINI.md` (Principal Engineer
-> persona). It adds Immoverse-specific context, constraints, and specialized
+> persona). It adds PropScape-specific context, constraints, and specialized
 > agent personas.
 
 ---
 
 ## §0 Project Context
 
-**Product:** Immoverse — a B2C real estate investment analysis application.
+**Product:** PropScape — a B2C real estate investment analysis application.
 
 **Domain:** German residential real estate ("Wohnimmobilien"). Users complete a
 16-step wizard ("Roter Faden") that collects property data, financing terms, tax
