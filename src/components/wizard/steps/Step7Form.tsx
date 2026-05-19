@@ -363,20 +363,20 @@ export function Step7OperatingCostsCard({ data }: { data: Step7ContextData }) {
         <div className="flex justify-between items-center text-sm">
           <span className="text-slate-600">Laufende Kosten (p.a.)</span>
           <span className="font-semibold text-slate-900">
-            {formatCentsEur(breakdown.annualRunningCostsCents).replace(' €', '')} €
+            {formatCentsEur(breakdown.annualRunningCostsCents)}
           </span>
         </div>
         <div className="flex justify-between items-center text-sm">
           <span className="text-slate-600">Einmalige Kosten (p.a.)</span>
           <span className="font-semibold text-slate-900">
-            {formatCentsEur(breakdown.annualOneOffCostsCents).replace(' €', '')} €
+            {formatCentsEur(breakdown.annualOneOffCostsCents)}
           </span>
         </div>
         <div className="border-t border-dashed border-slate-300 my-1"></div>
         <div className="flex justify-between items-center text-sm font-bold">
           <span className="text-slate-900">Gesamtkosten (p.a.)</span>
           <span className="text-navy-600">
-            {formatCentsEur(breakdown.totalAnnualCostsCents).replace(' €', '')} €
+            {formatCentsEur(breakdown.totalAnnualCostsCents)}
           </span>
         </div>
       </div>
