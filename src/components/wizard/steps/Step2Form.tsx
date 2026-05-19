@@ -4,13 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { RadioCardGroup } from "@/components/wizard/RadioCardGroup";
 import { SegmentedToggle } from "@/components/wizard/SegmentedToggle";
 import { HelpAccordion } from "@/components/wizard/HelpAccordion";
@@ -314,29 +307,27 @@ export function Step2Form({ analysisId }: Step2FormProps) {
               Zustand der Immobilie{" "}
               <span className="text-red-500" aria-hidden="true">*</span>
             </Label>
-            <Select
-              value={condition}
-              onValueChange={(v) => setCondition(v as PropertyCondition)}
+            <select
+              id="step2-condition"
+              value={condition ?? ""}
+              onChange={(e) => setCondition(e.target.value as PropertyCondition)}
               disabled={isPending}
+              className={cn(
+                "w-full sm:w-1/2 px-4 py-3 rounded-xl",
+                "border border-slate-200 bg-slate-50 text-slate-900",
+                "focus:outline-none focus:ring-2 focus:ring-navy-600/20 focus:border-navy-600 focus:bg-white",
+                "transition-all text-sm appearance-none cursor-pointer",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                !condition && "text-slate-400"
+              )}
             >
-              <SelectTrigger
-                id="step2-condition"
-                className={cn(
-                  "w-full sm:w-1/2 rounded-xl border-slate-200 bg-slate-50",
-                  "focus:ring-2 focus:ring-navy-600/20 focus:border-navy-600",
-                  "transition-all"
-                )}
-              >
-                <SelectValue placeholder="Zustand wählen…" />
-              </SelectTrigger>
-              <SelectContent>
-                {CONDITION_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <option value="" disabled>Zustand wählen…</option>
+              {CONDITION_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
