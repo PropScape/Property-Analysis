@@ -25,11 +25,7 @@ const AUTH_PUBLIC_BYPASS = ["/auth/callback", "/auth/verify-email"];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Inject x-pathname into the forwarded request headers BEFORE NextResponse.next
-  // so Server Component layouts can read it via headers() from next/headers.
-  // Setting it on the *response* headers does NOT work — headers() only reads
-  // headers that were forwarded with the request. See ADR-007.
-  const response = await updateSession(request, { "x-pathname": pathname });
+  const response = await updateSession(request);
 
   // Read the session from the refreshed response cookies
   const supabase = createServerClient(
@@ -61,11 +57,6 @@ export async function proxy(request: NextRequest) {
   if (user && isAuthRoute && !isBypassRoute) {
     return NextResponse.redirect(new URL("/", request.url));
   }
-
-  // Forward pathname so Server Component layouts can read the active route
-  // without needing child-segment params (e.g. WizardLayout needs [step]).
-  // NOTE: this is handled via additionalRequestHeaders in updateSession above —
-  // NOT here, because response headers are not accessible via headers().
 
   return response;
 }

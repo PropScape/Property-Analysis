@@ -1,12 +1,11 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { WIZARD_STEP_LABELS, WIZARD_STEP_COUNT } from "./wizard-constants";
 
 interface WizardStepperProps {
-  /** 1-indexed current step (1–16). */
-  currentStep: number;
   /** Optional additional class names. */
   className?: string;
 }
@@ -17,22 +16,35 @@ interface WizardStepperProps {
  * @remarks
  * Three states per node:
  * - **Completed** (`step < currentStep`): slate-800 fill, white check icon.
- * - **Active** (`step === currentStep`): navy-600 fill + glow ring, white number.
+ * - **Active** (`step === currentStep`): navy-600 fill + glow ring, step number.
  * - **Upcoming** (`step > currentStep`): white fill, slate-200 border, slate-400 number.
+ *
+ * **Active step always shows its number, never the checkmark** — so navigating
+ * back to a completed step still shows it as active (not done).
+ *
+ * **Step source:** `usePathname()` — self-contained, updates immediately on
+ * every client-side navigation without any server round-trip or header
+ * gymnastics. This is why the layout does NOT need to pass `currentStep`
+ * as a prop. See ADR-007 and the x-pathname removal rationale.
  *
  * **Label strategy:** Labels are absolutely positioned below each circle,
  * entirely out of the normal flow — zero impact on circle alignment.
  * On desktop they fade in on `group-hover` (pure CSS, no JS).
- * On mobile (touch) hover never fires → labels stay hidden.
- * A proper mobile step-selector (e.g. dropdown) will be implemented in a
- * future spec when the full wizard navigation is built.
+ * On mobile (touch) hover never fires → labels stay hidden until a
+ * dedicated mobile step-selector is built in a future spec.
  *
  * `pb-6` on the `<ol>` reserves vertical space so the absolutely-positioned
  * labels don't clip against the header's bottom edge.
  *
  * See design-system.md §7.2 (WizardStepper) and §9 (interactive states).
  */
-export function WizardStepper({ currentStep, className }: WizardStepperProps) {
+export function WizardStepper({ className }: WizardStepperProps) {
+  const pathname = usePathname();
+
+  // Derive active step from the current URL: /analysis/[id]/step/[n]
+  const match = pathname.match(/\/step\/(\d+)/);
+  const currentStep = match ? parseInt(match[1], 10) : 1;
+
   return (
     <nav
       aria-label="Wizard-Fortschritt"
@@ -76,6 +88,7 @@ export function WizardStepper({ currentStep, className }: WizardStepperProps) {
                         "bg-white border border-slate-200 text-slate-400"
                     )}
                   >
+                    {/* Active step always shows number, never checkmark */}
                     {isCompleted && !isActive ? (
                       <Check className="w-3 h-3" aria-hidden="true" />
                     ) : (
@@ -83,7 +96,7 @@ export function WizardStepper({ currentStep, className }: WizardStepperProps) {
                     )}
                   </div>
 
-                  {/* Label — centered below the circle wrapper */}
+                  {/* Label — centered below circle, hover-only on desktop */}
                   <span
                     className={cn(
                       "absolute top-full left-1/2 -translate-x-1/2 mt-1.5",
