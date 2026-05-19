@@ -59,7 +59,7 @@ export function WizardStepper({ analysisId, furthestStep, className }: WizardSte
         {Array.from({ length: WIZARD_STEP_COUNT }, (_, i) => i + 1).map(
           (step) => {
             // A step is considered unlocked (completed) if it's <= the furthest step reached.
-            const isCompleted = step <= furthestStep;
+            const isUnlocked = step <= furthestStep;
             const isActive = step === activeStep;
             const isFirst = step === 1;
 
@@ -80,7 +80,18 @@ export function WizardStepper({ analysisId, furthestStep, className }: WizardSte
 
                 {/* Circle + label — completed steps are clickable links */}
                 <div className="relative group flex-shrink-0">
-                  {isCompleted ? (
+                  {isActive ? (
+                    <div
+                      aria-current="step"
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center",
+                        "text-xs font-semibold transition-all duration-200 ease-in-out",
+                        "bg-navy-600 text-white shadow-[0_0_0_3px_rgba(30,58,138,0.2)]"
+                      )}
+                    >
+                      <span>{step}</span>
+                    </div>
+                  ) : isUnlocked ? (
                     <Link
                       href={`/analysis/${analysisId}/step/${step}`}
                       aria-label={`Zu Schritt ${step}: ${WIZARD_STEP_LABELS[step]}`}
@@ -96,14 +107,10 @@ export function WizardStepper({ analysisId, furthestStep, className }: WizardSte
                     </Link>
                   ) : (
                     <div
-                      aria-current={isActive ? "step" : undefined}
                       className={cn(
                         "w-7 h-7 rounded-full flex items-center justify-center",
                         "text-xs font-semibold transition-all duration-200 ease-in-out",
-                        isActive &&
-                          "bg-navy-600 text-white shadow-[0_0_0_3px_rgba(30,58,138,0.2)]",
-                        !isActive &&
-                          "bg-white border border-slate-200 text-slate-400"
+                        "bg-white border border-slate-200 text-slate-400"
                       )}
                     >
                       <span>{step}</span>
@@ -119,8 +126,8 @@ export function WizardStepper({ analysisId, furthestStep, className }: WizardSte
                       "transition-opacity duration-150 ease-in-out",
                       "pointer-events-none select-none",
                       isActive && "text-navy-600 font-semibold",
-                      isCompleted && !isActive && "text-slate-500",
-                      !isCompleted && !isActive && "text-slate-400"
+                      isUnlocked && !isActive && "text-slate-500",
+                      !isUnlocked && !isActive && "text-slate-400"
                     )}
                     aria-hidden="true"
                   >
