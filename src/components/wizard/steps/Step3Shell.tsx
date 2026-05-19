@@ -46,8 +46,8 @@ export function Step3Shell({ analysisId, initialData }: Step3ShellProps) {
 
   return (
     <div className="flex gap-8 items-start justify-center w-full">
-      {/* Left KPI sidebar — desktop only */}
-      <aside className="hidden lg:flex flex-col gap-4 w-56 flex-shrink-0 opacity-50 sticky top-6">
+      {/* Left KPI sidebar — desktop only, width pinned so form doesn't shift */}
+      <aside className="hidden lg:flex flex-col gap-4 w-56 min-w-56 max-w-56 flex-shrink-0 opacity-50 sticky top-6">
         <KpiSidebarPlaceholder
           label="Eigenkapitalrendite"
           helperText="Benötigt Finanzierungsdaten"
@@ -80,8 +80,8 @@ export function Step3Shell({ analysisId, initialData }: Step3ShellProps) {
         />
       </section>
 
-      {/* Right sidebar: live KPI preview — updates in real-time */}
-      <aside className="hidden lg:flex flex-col gap-4 w-56 flex-shrink-0 sticky top-6">
+      {/* Right sidebar: live KPI preview — width pinned to prevent form shift */}
+      <aside className="hidden lg:flex flex-col gap-4 w-56 min-w-56 max-w-56 flex-shrink-0 sticky top-6 overflow-hidden">
         <Step3KpiPreviewCard
           purchaseDisplayValue={purchaseDisplay}
           coldRentDisplayValue={coldRentDisplay}

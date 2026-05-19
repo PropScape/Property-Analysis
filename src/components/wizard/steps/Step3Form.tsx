@@ -572,7 +572,7 @@ export function Step3KpiPreviewCard({
       : "bg-red-500";
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-navy-100 relative overflow-hidden">
+    <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-navy-100 relative overflow-hidden">
       {/* Background watermark */}
       <div className="absolute top-0 right-0 p-4 opacity-5" aria-hidden="true">
         <Zap className="w-16 h-16 text-navy-500" />
