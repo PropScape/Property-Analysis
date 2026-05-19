@@ -85,6 +85,21 @@ interface Step3FormProps {
    * populated after a page reload (DB = source of truth).
    */
   initialData?: Partial<Step3Data> | null;
+  /**
+   * Called whenever the purchase-price display string changes.
+   * Used by `Step3Shell` to keep the live KPI sidebar in sync.
+   */
+  onPurchaseChange?: (value: string) => void;
+  /**
+   * Called whenever the cold-rent display string changes.
+   * Used by `Step3Shell` to keep the live KPI sidebar in sync.
+   */
+  onColdRentChange?: (value: string) => void;
+  /**
+   * Called whenever the vacancy rate changes.
+   * Used by `Step3Shell` to keep the live KPI sidebar in sync.
+   */
+  onVacancyChange?: (value: number) => void;
 }
 
 /**
@@ -104,7 +119,13 @@ interface Step3FormProps {
  *
  * See SPEC-WIZARD-STEP3 v1.0.0.
  */
-export function Step3Form({ analysisId, initialData }: Step3FormProps) {
+export function Step3Form({
+  analysisId,
+  initialData,
+  onPurchaseChange,
+  onColdRentChange,
+  onVacancyChange,
+}: Step3FormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const vacancyId = useId();
@@ -226,7 +247,10 @@ export function Step3Form({ analysisId, initialData }: Step3FormProps) {
               inputMode="numeric"
               placeholder="350.000"
               value={purchaseDisplay}
-              onChange={(e) => setPurchaseDisplay(e.target.value)}
+              onChange={(e) => {
+                setPurchaseDisplay(e.target.value);
+                onPurchaseChange?.(e.target.value);
+              }}
               disabled={isPending}
               className={cn(
                 "w-full pl-10 pr-4 py-4 rounded-xl border-2 border-slate-200 bg-slate-50",
@@ -263,7 +287,10 @@ export function Step3Form({ analysisId, initialData }: Step3FormProps) {
                   inputMode="numeric"
                   placeholder="1.250"
                   value={coldRentDisplay}
-                  onChange={(e) => setColdRentDisplay(e.target.value)}
+                  onChange={(e) => {
+                    setColdRentDisplay(e.target.value);
+                    onColdRentChange?.(e.target.value);
+                  }}
                   disabled={isPending}
                   className={cn(
                     "w-full pl-8 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50",
@@ -359,7 +386,11 @@ export function Step3Form({ analysisId, initialData }: Step3FormProps) {
                 max={10}
                 step={0.5}
                 value={vacancyRate}
-                onChange={(e) => setVacancyRate(parseFloat(e.target.value))}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setVacancyRate(v);
+                  onVacancyChange?.(v);
+                }}
                 disabled={isPending}
                 aria-label="Leerstandsrate in Prozent"
                 className="w-full h-1 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-navy-600 disabled:opacity-50"

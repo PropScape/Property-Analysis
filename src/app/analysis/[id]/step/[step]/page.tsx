@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Step1Form } from "@/components/wizard/steps/Step1Form";
 import { Step2Form } from "@/components/wizard/steps/Step2Form";
-import { Step3Form, Step3KpiPreviewCard } from "@/components/wizard/steps/Step3Form";
+import { Step3Shell } from "@/components/wizard/steps/Step3Shell";
 import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder";
 import { WIZARD_STEP_LABELS } from "@/components/wizard/wizard-constants";
-import { TrendingUp, Percent, Scale, BarChart2, Landmark } from "lucide-react";
+import { TrendingUp, Percent, Scale, BarChart2 } from "lucide-react";
 import type { Step1Data, Step2Data, Step3Data } from "@/domain/types/wizard";
 
 interface StepPageProps {
@@ -159,60 +159,11 @@ export default async function StepPage({ params }: StepPageProps) {
   // ── Step 3 ───────────────────────────────────────────────────────────────────────
   if (stepNumber === 3) {
     const saved = await fetchSavedStepData(supabase, id, 3);
-    const step3Initial = saved as Partial<Step3Data> | null;
-
     return (
-      <div className="flex gap-8 items-start justify-center w-full">
-        {/* Left KPI sidebar — desktop only */}
-        <aside className="hidden lg:flex flex-col gap-4 w-56 flex-shrink-0 opacity-50 sticky top-6">
-          <KpiSidebarPlaceholder
-            label="Eigenkapitalrendite"
-            helperText="Benötigt Finanzierungsdaten"
-            icon={<Percent className="w-10 h-10" />}
-          />
-          <KpiSidebarPlaceholder
-            label="Cashflow"
-            helperText="Wird nach Schritt 6 berechnet"
-            icon={<TrendingUp className="w-10 h-10" />}
-          />
-        </aside>
-
-        {/* Center: form */}
-        <section className="flex-1 min-w-0 max-w-2xl">
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Kaufpreis &amp; Miete
-            </h1>
-            <p className="text-slate-500 mt-2">
-              Trage den Kaufpreis und die erwarteten Mieteinnahmen ein, um
-              die erste Rendite-Indikation zu erhalten.
-            </p>
-          </div>
-          <Step3Form analysisId={id} initialData={step3Initial} />
-        </section>
-
-        {/* Right sidebar: live KPI preview */}
-        <aside className="hidden lg:flex flex-col gap-4 w-56 flex-shrink-0 sticky top-6">
-          <Step3KpiPreviewCard
-            purchaseDisplayValue={step3Initial?.purchase_price_cents
-              ? new Intl.NumberFormat("de-DE").format(
-                  step3Initial.purchase_price_cents / 100
-                )
-              : ""}
-            coldRentDisplayValue={step3Initial?.cold_rent_cents
-              ? new Intl.NumberFormat("de-DE").format(
-                  step3Initial.cold_rent_cents / 100
-                )
-              : ""}
-            vacancyRate={step3Initial?.vacancy_rate_percent ?? 2}
-          />
-          <KpiSidebarPlaceholder
-            label="Kaufnebenkosten"
-            helperText="Nächster Schritt: Notar &amp; Steuer"
-            icon={<Landmark className="w-10 h-10" />}
-          />
-        </aside>
-      </div>
+      <Step3Shell
+        analysisId={id}
+        initialData={saved as Partial<Step3Data> | null}
+      />
     );
   }
 
