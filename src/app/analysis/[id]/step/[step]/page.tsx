@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { Step1Form } from "@/components/wizard/steps/Step1Form";
 import { Step2Form } from "@/components/wizard/steps/Step2Form";
 import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder";
 import { WIZARD_STEP_LABELS } from "@/components/wizard/wizard-constants";
 import { TrendingUp, Percent, Scale, BarChart2 } from "lucide-react";
+import type { Step1Data, Step2Data } from "@/domain/types/wizard";
 
 interface StepPageProps {
   params: Promise<{ id: string; step: string }>;
@@ -29,15 +31,46 @@ export async function generateMetadata({
 }
 
 /**
+ * Fetches previously saved step data from the DB for a given step number.
+ *
+ * @remarks
+ * Returns the raw `data` JSON from `analysis_steps`, or `null` if the step
+ * has not been saved yet. Used to pre-populate form fields after a page
+ * reload — the Zustand store is the in-session cache, the DB is the source
+ * of truth across reloads/devices.
+ *
+ * @param supabase - authenticated Supabase client
+ * @param analysisId - UUID of the analysis
+ * @param stepNumber - wizard step number (1–16)
+ */
+async function fetchSavedStepData(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  analysisId: string,
+  stepNumber: number
+): Promise<Record<string, unknown> | null> {
+  const { data } = await supabase
+    .from("analysis_steps")
+    .select("data")
+    .eq("analysis_id", analysisId)
+    .eq("step_number", stepNumber)
+    .single();
+
+  if (!data?.data) return null;
+  return data.data as Record<string, unknown>;
+}
+
+/**
  * Step router — renders the correct step form for the current step number.
  *
  * @remarks
+ * Fetches previously saved step data from the DB and passes it as
+ * `initialData` to the form component. This ensures fields are pre-populated
+ * after a page reload — the DB is the source of truth, Zustand is a local
+ * in-session cache only.
+ *
  * Steps with KPI sidebars (step 2+) use a 3-column layout on desktop:
  * left sidebar (locked KPIs) · center form (max-w-2xl) · right sidebar.
  * On mobile the sidebars are hidden and the form is full-width.
- *
- * The `[id]` segment (analysis ID) is forwarded to the step component
- * so it can call `saveStepAction` without drilling through props.
  *
  * See SPEC-WIZARD-START v1.0.0 §2 and SPEC-WIZARD-STEP2 v1.0.0.
  */
@@ -49,8 +82,12 @@ export default async function StepPage({ params }: StepPageProps) {
     notFound();
   }
 
+  const supabase = await createClient();
+
   // ── Step 1 ─────────────────────────────────────────────────────────────────
   if (stepNumber === 1) {
+    const saved = await fetchSavedStepData(supabase, id, 1);
+
     return (
       <div className="max-w-2xl mx-auto w-full">
         <div className="mb-8">
@@ -62,13 +99,15 @@ export default async function StepPage({ params }: StepPageProps) {
             brauchen wir zwei kurze Angaben.
           </p>
         </div>
-        <Step1Form analysisId={id} />
+        <Step1Form analysisId={id} initialData={saved as Partial<Step1Data> | null} />
       </div>
     );
   }
 
   // ── Step 2 ─────────────────────────────────────────────────────────────────
   if (stepNumber === 2) {
+    const saved = await fetchSavedStepData(supabase, id, 2);
+
     return (
       <div className="flex gap-8 items-start justify-center w-full">
         {/* Left KPI sidebar — desktop only */}
@@ -96,7 +135,7 @@ export default async function StepPage({ params }: StepPageProps) {
               Fundament für alle weiteren Berechnungen.
             </p>
           </div>
-          <Step2Form analysisId={id} />
+          <Step2Form analysisId={id} initialData={saved as Partial<Step2Data> | null} />
         </section>
 
         {/* Right KPI sidebar — desktop only */}

@@ -7,7 +7,7 @@ import { RadioCardGroup } from "@/components/wizard/RadioCardGroup";
 import { StepFooter } from "@/components/wizard/StepFooter";
 import { saveStepAction } from "@/actions/analysis";
 import { useAnalysisStore } from "@/stores/analysis-store";
-import type { WizardIntent, ExperienceLevel } from "@/domain/types/wizard";
+import type { WizardIntent, ExperienceLevel, Step1Data } from "@/domain/types/wizard";
 import { Banknote, Home, TrendingUp, GraduationCap, Lightbulb, Briefcase } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -62,6 +62,12 @@ const EXPERIENCE_OPTIONS = [
 
 interface Step1FormProps {
   analysisId: string;
+  /**
+   * Previously saved step data loaded from the DB by the Server Component.
+   * Takes priority over the Zustand store on initial render so fields are
+   * populated after a page reload (DB = source of truth).
+   */
+  initialData?: Partial<Step1Data> | null;
 }
 
 /**
@@ -76,7 +82,7 @@ interface Step1FormProps {
  *
  * See SPEC-WIZARD-START v1.0.0 §3 (Step 1 form).
  */
-export function Step1Form({ analysisId }: Step1FormProps) {
+export function Step1Form({ analysisId, initialData }: Step1FormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -84,11 +90,14 @@ export function Step1Form({ analysisId }: Step1FormProps) {
   const setCurrentStep = useAnalysisStore((s) => s.setCurrentStep);
   const savedStep1 = useAnalysisStore((s) => s.step1);
 
+  // DB data (initialData) takes priority over the Zustand store on mount.
+  // This ensures fields are pre-filled after a reload even if localStorage
+  // was cleared or the user opens the link on another device.
   const [intent, setIntent] = useState<WizardIntent | undefined>(
-    savedStep1.intent
+    (initialData?.intent ?? savedStep1.intent) as WizardIntent | undefined
   );
   const [experience, setExperience] = useState<ExperienceLevel | undefined>(
-    savedStep1.experience_level
+    (initialData?.experience_level ?? savedStep1.experience_level) as ExperienceLevel | undefined
   );
   const [error, setError] = useState<string | null>(null);
 

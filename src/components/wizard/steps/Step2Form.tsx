@@ -11,7 +11,7 @@ import { StepFooter } from "@/components/wizard/StepFooter";
 import { saveStepAction } from "@/actions/analysis";
 import { useAnalysisStore } from "@/stores/analysis-store";
 import { cn } from "@/lib/utils";
-import type { PropertyType, OccupancyType, PropertyCondition } from "@/domain/types/wizard";
+import type { PropertyType, OccupancyType, PropertyCondition, Step2Data } from "@/domain/types/wizard";
 import { Building, Home, Building2, MapPin, Calendar, CalendarDays } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -56,6 +56,12 @@ const CONDITION_OPTIONS: { value: PropertyCondition; label: string }[] = [
 
 interface Step2FormProps {
   analysisId: string;
+  /**
+   * Previously saved step data loaded from the DB by the Server Component.
+   * Takes priority over the Zustand store on initial render so fields are
+   * populated after a page reload (DB = source of truth).
+   */
+  initialData?: Partial<Step2Data> | null;
 }
 
 /**
@@ -74,7 +80,7 @@ interface Step2FormProps {
  *
  * @see {@link https://nextjs.org/docs/app/api-reference/functions/use-router} useRouter
  */
-export function Step2Form({ analysisId }: Step2FormProps) {
+export function Step2Form({ analysisId, initialData }: Step2FormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -82,23 +88,29 @@ export function Step2Form({ analysisId }: Step2FormProps) {
   const setCurrentStep = useAnalysisStore((s) => s.setCurrentStep);
   const saved = useAnalysisStore((s) => s.step2);
 
-  // Local form state — initialise from Zustand (localStorage rehydration)
+  // DB data (initialData) takes priority over the Zustand store on mount.
+  // This ensures fields are pre-filled after a reload even if localStorage
+  // was cleared or the user opens the link on another device.
   const [propertyType, setPropertyType] = useState<PropertyType | undefined>(
-    saved.property_type
+    (initialData?.property_type ?? saved.property_type) as PropertyType | undefined
   );
-  const [location, setLocation] = useState(saved.location ?? "");
+  const [location, setLocation] = useState(
+    initialData?.location ?? saved.location ?? ""
+  );
   const [livingArea, setLivingArea] = useState(
-    saved.living_area_sqm?.toString() ?? ""
+    (initialData?.living_area_sqm ?? saved.living_area_sqm)?.toString() ?? ""
   );
   const [yearBuilt, setYearBuilt] = useState(
-    saved.year_built?.toString() ?? ""
+    (initialData?.year_built ?? saved.year_built)?.toString() ?? ""
   );
-  const [purchaseDate, setPurchaseDate] = useState(saved.purchase_date ?? "");
+  const [purchaseDate, setPurchaseDate] = useState(
+    initialData?.purchase_date ?? saved.purchase_date ?? ""
+  );
   const [occupancy, setOccupancy] = useState<OccupancyType | undefined>(
-    saved.occupancy_type
+    (initialData?.occupancy_type ?? saved.occupancy_type) as OccupancyType | undefined
   );
   const [condition, setCondition] = useState<PropertyCondition | undefined>(
-    saved.condition
+    (initialData?.condition ?? saved.condition) as PropertyCondition | undefined
   );
   const [error, setError] = useState<string | null>(null);
 
