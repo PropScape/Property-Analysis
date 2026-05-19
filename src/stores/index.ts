@@ -1,8 +1,17 @@
 /**
- * Placeholder for Zustand stores.
+ * Store barrel — re-exports all Zustand stores.
  *
- * The wizard analysis store will manage 16 steps of interconnected
- * financial data with localStorage persistence.
+ * @remarks
+ * Import stores from this file to keep import paths stable as the store
+ * count grows.
  *
- * See ADR-005 (Zustand) and docs/architecture.md §5.
+ * Example:
+ * ```ts
+ * import { useAnalysisStore } from "@/stores";
+ * ```
+ *
+ * See ADR-005 (Zustand) for the store architecture rationale.
  */
+export { useAnalysisStore } from "./analysis-store";
+export type { AnalysisStore } from "./analysis-store";
+
