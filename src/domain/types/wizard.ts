@@ -266,3 +266,32 @@ export interface Step6Data {
   /** Optional one-off processing fee in integer cents. */
   loan_processing_fee_cents: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Step 7 — Hausgeld & Verwaltung
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Step 7 form data — Hausgeld & Verwaltung.
+ *
+ * @remarks
+ * Contains all operating costs, both monthly and annual one-offs.
+ * Costs are split by recoverable (umlagefähig) vs non-recoverable (nicht umlagefähig)
+ * to accurately compute the owner's monthly cashflow burden and the cost ratio.
+ *
+ * See SPEC-WIZARD-STEP7 v1.0.0.
+ */
+export interface Step7Data {
+  /** Recoverable operating costs (umlagefähig) in cents per month */
+  recoverable_costs_per_month_cents: number;
+  /** Non-recoverable operating costs (nicht umlagefähig) in cents per month */
+  non_recoverable_costs_per_month_cents: number;
+  /** Property management fee (Sondereigentumsverwaltung) in cents per month */
+  property_management_fee_per_month_cents: number;
+  /** Maintenance reserve (Instandhaltungsrücklage) in cents per month */
+  maintenance_reserve_per_month_cents: number;
+  /** Additional annual insurance in cents per year */
+  additional_insurance_per_year_cents: number;
+  /** Other annual costs (Puffer) in cents per year */
+  other_costs_per_year_cents: number;
+}

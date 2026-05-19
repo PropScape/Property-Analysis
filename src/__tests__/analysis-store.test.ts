@@ -31,6 +31,7 @@ function createTestStore() {
     step4: {},
     step5: {},
     step6: {},
+    step7: {},
 
     setAnalysisId: (id) => set({ analysisId: id }),
     setCurrentStep: (step) => set({ currentStep: step }),
@@ -46,8 +47,10 @@ function createTestStore() {
       set((state) => ({ step5: { ...state.step5, ...data } })),
     setStep6: (data) =>
       set((state) => ({ step6: { ...state.step6, ...data } })),
+    setStep7: (data) =>
+      set((state) => ({ step7: { ...state.step7, ...data } })),
     reset: () =>
-      set({ analysisId: null, currentStep: 1, step1: {}, step2: {}, step3: {}, step4: {}, step5: {}, step6: {} }),
+      set({ analysisId: null, currentStep: 1, step1: {}, step2: {}, step3: {}, step4: {}, step5: {}, step6: {}, step7: {} }),
   }));
 }
 

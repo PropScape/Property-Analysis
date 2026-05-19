@@ -4,11 +4,11 @@
 
 ## Current Phase
 
-**Feature Development — Wizard Steps 1–6 complete**
+**Feature Development — Wizard Steps 1–7 complete**
 
-Project scaffold, auth, and project-overview are implemented. Wizard steps 1–6
+Project scaffold, auth, and project-overview are implemented. Wizard steps 1–7
 are live with DB persistence. Domain calculation layer extracted. Config layer
-introduced. Ready for Step 7 (Hausgeld & Verwaltung).
+introduced. Ready for Step 8 (Initial Cashflow).
 
 ## Active Work
 
@@ -20,7 +20,8 @@ introduced. Ready for Step 7 (Hausgeld & Verwaltung).
 - SPEC-WIZARD-STEP4 v1.0.0 — ✅ Implemented (Kaufnebenkosten, receipt sidebar)
 - SPEC-WIZARD-STEP5 v1.0.0 — ✅ Implemented (Sanierungsmaßnahmen, measure repeater)
 - SPEC-WIZARD-STEP6 v1.0.0 — ✅ Implemented (Finanzierung, LTV slider, annuity calc)
-- Next: SPEC-WIZARD-STEP7 (Hausgeld & Verwaltung)
+- SPEC-WIZARD-STEP7 v1.0.0 — ✅ Implemented (Hausgeld & Verwaltung, operating cost ratio)
+- Next: SPEC-WIZARD-STEP8 (Initial Cashflow)
 
 ## ⚠️ Standing Rules (read before every session)
 
@@ -43,6 +44,7 @@ introduced. Ready for Step 7 (Hausgeld & Verwaltung).
 
 | Date | Change |
 |---|---|
+| 2026-05-19 | SPEC-WIZARD-STEP7 v1.0.0: Hausgeld & Verwaltung — operating costs dashboard, Kostenquote gauge |
 | 2026-05-19 | SPEC-WIZARD-STEP6 v1.0.0: Finanzierung — equity & loan form, LTV slider, domain calculation for German Annuity Loan (Kapitaldienst) |
 | 2026-05-19 | SPEC-WIZARD-STEP5 v1.0.0: Sanierungsmaßnahmen — dynamic measure repeater, immediate/deferred split, Impact Preview sidebar, 13 new domain tests |
 | 2026-05-19 | ADR-008: config layer documented; ESLint restriction added; state.md standing rules enforced |

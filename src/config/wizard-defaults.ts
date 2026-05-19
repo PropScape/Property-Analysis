@@ -57,6 +57,14 @@ export interface WizardDefaults {
   renovationFinancingInterestPercent: number;
   /** Default annual repayment rate for a renovation loan in percent. */
   renovationFinancingRepaymentPercent: number;
+
+  // ── Step 7 — Hausgeld & Verwaltung ───────────────────────────────────────
+  defaultRecoverableCostsPerMonthCents: number;
+  defaultNonRecoverableCostsPerMonthCents: number;
+  defaultPropertyManagementFeePerMonthCents: number;
+  defaultMaintenanceReservePerMonthCents: number;
+  defaultAdditionalInsurancePerYearCents: number;
+  defaultOtherCostsPerYearCents: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -85,6 +93,14 @@ export const WIZARD_DEFAULTS: WizardDefaults = {
   // Step 5
   renovationFinancingInterestPercent: 3.5,
   renovationFinancingRepaymentPercent: 2.0,
+
+  // Step 7
+  defaultRecoverableCostsPerMonthCents: 0,
+  defaultNonRecoverableCostsPerMonthCents: 0,
+  defaultPropertyManagementFeePerMonthCents: 0,
+  defaultMaintenanceReservePerMonthCents: 0,
+  defaultAdditionalInsurancePerYearCents: 0,
+  defaultOtherCostsPerYearCents: 0,
 } as const;
 
 // ---------------------------------------------------------------------------

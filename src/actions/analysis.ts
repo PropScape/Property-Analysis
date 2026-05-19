@@ -9,6 +9,7 @@ import { step3Schema } from "@/domain/schemas/step3";
 import { step4Schema } from "@/domain/schemas/step4";
 import { step5Schema } from "@/domain/schemas/step5";
 import { step6Schema } from "@/domain/schemas/step6";
+import { step7Schema } from "@/domain/schemas/step7";
 import { ok, err } from "@/domain/types/result";
 import type { Result } from "@/domain/types/result";
 import type { Json } from "@/lib/supabase/database.types";
@@ -149,6 +150,11 @@ export async function saveStepAction(
     }
   } else if (stepNumber === 6) {
     const parsed = step6Schema.safeParse(data);
+    if (!parsed.success) {
+      return err(parsed.error.issues.map((i) => i.message).join(", "));
+    }
+  } else if (stepNumber === 7) {
+    const parsed = step7Schema.safeParse(data);
     if (!parsed.success) {
       return err(parsed.error.issues.map((i) => i.message).join(", "));
     }

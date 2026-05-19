@@ -7,10 +7,11 @@ import { Step3Shell } from "@/components/wizard/steps/Step3Shell";
 import { Step4Shell } from "@/components/wizard/steps/Step4Shell";
 import { Step5Shell } from "@/components/wizard/steps/Step5Shell";
 import { Step6Shell } from "@/components/wizard/steps/Step6Shell";
+import { Step7Shell } from "@/components/wizard/steps/Step7Shell";
 import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder";
 import { WIZARD_STEP_LABELS } from "@/components/wizard/wizard-constants";
 import { TrendingUp, Percent, Scale, BarChart2 } from "lucide-react";
-import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data } from "@/domain/types/wizard";
+import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data } from "@/domain/types/wizard";
 import { computeAncillaryCosts } from "@/domain/calculations/acquisition-costs";
 import { computeRenovationBreakdown } from "@/domain/calculations/renovation";
 import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
@@ -265,6 +266,31 @@ export default async function StepPage({ params }: StepPageProps) {
     );
   }
 
-  // ── Steps 7–16 — not yet implemented ─────────────────────────────────────
+  // ── Step 7 ──────────────────────────────────────────────────────────────────
+  if (stepNumber === 7) {
+    const [step3Saved, step7Saved] = await Promise.all([
+      fetchSavedStepData(supabase, id, 3),
+      fetchSavedStepData(supabase, id, 7),
+    ]);
+
+    const step3 = step3Saved as { monthly_cold_rent_cents?: number } | null;
+    const monthlyColdRentCents = step3?.monthly_cold_rent_cents ?? 0;
+
+    return (
+      <Step7Shell
+        analysisId={id}
+        initialData={step7Saved as Partial<Step7Data> | null}
+        monthlyColdRentCents={monthlyColdRentCents}
+        defaultRecoverable={WIZARD_DEFAULTS.defaultRecoverableCostsPerMonthCents}
+        defaultNonRecoverable={WIZARD_DEFAULTS.defaultNonRecoverableCostsPerMonthCents}
+        defaultManagement={WIZARD_DEFAULTS.defaultPropertyManagementFeePerMonthCents}
+        defaultMaintenance={WIZARD_DEFAULTS.defaultMaintenanceReservePerMonthCents}
+        defaultInsurance={WIZARD_DEFAULTS.defaultAdditionalInsurancePerYearCents}
+        defaultOther={WIZARD_DEFAULTS.defaultOtherCostsPerYearCents}
+      />
+    );
+  }
+
+  // ── Steps 8–16 — not yet implemented ─────────────────────────────────────
   notFound();
 }
