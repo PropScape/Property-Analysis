@@ -52,7 +52,7 @@ export default async function StepPage({ params }: StepPageProps) {
   // ── Step 1 ─────────────────────────────────────────────────────────────────
   if (stepNumber === 1) {
     return (
-      <>
+      <div className="max-w-2xl mx-auto w-full">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 mb-1">
             Investitionsziel &amp; Erfahrung
@@ -63,7 +63,7 @@ export default async function StepPage({ params }: StepPageProps) {
           </p>
         </div>
         <Step1Form analysisId={id} />
-      </>
+      </div>
     );
   }
 
