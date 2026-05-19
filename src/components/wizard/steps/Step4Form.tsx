@@ -290,8 +290,8 @@ export function Step4Form({
               disabled={isPending}
             />
 
-            {/* Grunderwerbsteuer — Bundesland select */}
-            <div className="flex flex-col gap-2">
+            {/* Grunderwerbsteuer — spans both columns to fit the long state names */}
+            <div className="flex flex-col gap-2 sm:col-span-2">
               <Label htmlFor="step4-bundesland" className="text-sm font-medium text-slate-700">
                 Grunderwerbsteuer (Bundesland)
               </Label>
@@ -569,10 +569,10 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
         Investitions-Zusammenfassung
       </h3>
 
-      <div className="flex flex-col gap-3 font-mono text-sm">
+      <div className="flex flex-col gap-2 font-mono text-xs">
         {/* Base price */}
-        <div className="flex justify-between items-center text-slate-600">
-          <span>Kaufpreis</span>
+        <div className="flex justify-between items-center text-slate-600 gap-2">
+          <span className="whitespace-nowrap">Kaufpreis</span>
           <span className="font-semibold text-slate-900 tabular-nums">
             {purchasePriceCents > 0 ? `${fmtEur(purchasePriceCents)}\u202f€` : "—"}
           </span>
@@ -617,15 +617,15 @@ export function Step4InvestmentSummaryCard({ data }: InvestmentSummaryCardProps)
         <div className="border-t border-dashed border-slate-200 my-0.5" />
 
         {/* Subtotal ancillary */}
-        <div className="flex justify-between items-center text-slate-700 font-medium">
-          <span>Summe Nebenkosten</span>
+        <div className="flex justify-between items-center text-slate-700 font-semibold gap-2">
+          <span className="whitespace-nowrap">Nebenkosten</span>
           <span className="tabular-nums">
             {purchasePriceCents > 0 ? `${fmtEur(totalAncillaryCents)}\u202f€` : "—"}
           </span>
         </div>
         {purchasePriceCents > 0 && (
-          <div className="flex justify-between items-center text-slate-400 text-xs -mt-1">
-            <span>Nebenkostenquote</span>
+          <div className="flex justify-between items-center text-slate-400 text-xs -mt-0.5 gap-2">
+            <span className="whitespace-nowrap">Nebenkostenquote</span>
             <span className="tabular-nums">
               {ancillaryRatePct.toFixed(2).replace(".", ",")}&thinsp;%
             </span>
@@ -659,9 +659,9 @@ interface SummaryRowProps {
 
 function SummaryRow({ label, cents, show }: SummaryRowProps) {
   return (
-    <div className="flex justify-between items-center text-slate-500">
-      <span className="truncate pr-2">{label}</span>
-      <span className="tabular-nums flex-shrink-0">
+    <div className="flex justify-between items-center text-slate-500 gap-2">
+      <span className="truncate">{label}</span>
+      <span className="tabular-nums whitespace-nowrap flex-shrink-0">
         {show ? `${fmtEur(cents)}\u202f€` : "—"}
       </span>
     </div>

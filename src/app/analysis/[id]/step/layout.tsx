@@ -87,7 +87,7 @@ export default async function WizardLayout({
           "px-4 py-3",
         ].join(" ")}
       >
-        <div className="max-w-4xl mx-auto flex flex-col gap-3">
+        <div className="max-w-6xl mx-auto flex flex-col gap-3">
           {/* Brand + analysis name + step badge row */}
           <div className="flex items-center justify-between">
             <Link
@@ -105,7 +105,7 @@ export default async function WizardLayout({
 
             {/* Step badge — WizardStepBadge is a Client Component using usePathname() */}
             <div className="flex items-center gap-2 ml-auto">
-              <p className="text-sm font-medium text-slate-700 truncate max-w-[180px] hidden sm:block">
+              <p className="text-sm font-medium text-slate-700 truncate max-w-xs hidden sm:block">
                 {analysis.name}
               </p>
               <div className="flex items-center gap-1.5 flex-shrink-0 bg-slate-100 px-2.5 py-1 rounded-full">
