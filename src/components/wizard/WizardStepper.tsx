@@ -76,7 +76,7 @@ export function WizardStepper({ currentStep, className }: WizardStepperProps) {
                         "bg-white border border-slate-200 text-slate-400"
                     )}
                   >
-                    {isCompleted ? (
+                    {isCompleted && !isActive ? (
                       <Check className="w-3 h-3" aria-hidden="true" />
                     ) : (
                       <span>{step}</span>
