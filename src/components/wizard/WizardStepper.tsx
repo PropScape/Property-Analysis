@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { WIZARD_STEP_LABELS, WIZARD_STEP_COUNT } from "./wizard-constants";
 
 interface WizardStepperProps {
+  /** Analysis ID — used to construct step navigation URLs. */
+  analysisId: string;
   /** Optional additional class names. */
   className?: string;
 }
@@ -38,7 +41,7 @@ interface WizardStepperProps {
  *
  * See design-system.md §7.2 (WizardStepper) and §9 (interactive states).
  */
-export function WizardStepper({ className }: WizardStepperProps) {
+export function WizardStepper({ analysisId, className }: WizardStepperProps) {
   const pathname = usePathname();
 
   // Derive active step from the current URL: /analysis/[id]/step/[n]
@@ -72,29 +75,37 @@ export function WizardStepper({ className }: WizardStepperProps) {
                   />
                 )}
 
-                {/* Circle + label — wrapper is the positioning context */}
+                {/* Circle + label — completed steps are clickable links */}
                 <div className="relative group flex-shrink-0">
-                  {/* Circle */}
-                  <div
-                    aria-current={isActive ? "step" : undefined}
-                    className={cn(
-                      "w-7 h-7 rounded-full flex items-center justify-center",
-                      "text-xs font-semibold transition-all duration-200 ease-in-out",
-                      isCompleted && "bg-slate-800 text-white",
-                      isActive &&
-                        "bg-navy-600 text-white shadow-[0_0_0_3px_rgba(30,58,138,0.2)]",
-                      !isCompleted &&
-                        !isActive &&
-                        "bg-white border border-slate-200 text-slate-400"
-                    )}
-                  >
-                    {/* Active step always shows number, never checkmark */}
-                    {isCompleted && !isActive ? (
+                  {isCompleted ? (
+                    <Link
+                      href={`/analysis/${analysisId}/step/${step}`}
+                      aria-label={`Zu Schritt ${step}: ${WIZARD_STEP_LABELS[step]}`}
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center",
+                        "text-xs font-semibold transition-all duration-200 ease-in-out",
+                        "bg-slate-800 text-white",
+                        "hover:bg-navy-600 hover:shadow-[0_0_0_3px_rgba(30,58,138,0.2)]",
+                        "cursor-pointer"
+                      )}
+                    >
                       <Check className="w-3 h-3" aria-hidden="true" />
-                    ) : (
+                    </Link>
+                  ) : (
+                    <div
+                      aria-current={isActive ? "step" : undefined}
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center",
+                        "text-xs font-semibold transition-all duration-200 ease-in-out",
+                        isActive &&
+                          "bg-navy-600 text-white shadow-[0_0_0_3px_rgba(30,58,138,0.2)]",
+                        !isActive &&
+                          "bg-white border border-slate-200 text-slate-400"
+                      )}
+                    >
                       <span>{step}</span>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* Label — centered below circle, hover-only on desktop */}
                   <span
