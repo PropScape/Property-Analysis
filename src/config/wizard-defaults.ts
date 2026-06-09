@@ -86,6 +86,16 @@ export interface WizardDefaults {
   defaultNonRecoverableCostsPerMonthCentsStep12: number;
   /** Default maintenance rate in €/m²/month (decimal). */
   defaultMaintenancePerSqmEuro: number;
+
+  // ── Step 13 — Final Cashflow & KPIs ──────────────────────────────────────
+  /** Default annual appreciation rate in percent. */
+  defaultAppreciationRatePercent: number;
+  /** Default vacancy rate for the stress test in percent. */
+  defaultStressVacancyPercent: number;
+  /** Default interest rate delta for the stress test in percentage points. */
+  defaultStressInterestDeltaPp: number;
+  /** Default unexpected maintenance cost for the stress test in cents. */
+  defaultStressMaintenanceOnceCents: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -137,6 +147,12 @@ export const WIZARD_DEFAULTS: WizardDefaults = {
   defaultCostAllocationType: "nicht_umlegbar",
   defaultNonRecoverableCostsPerMonthCentsStep12: 3500, // 35 €/month
   defaultMaintenancePerSqmEuro: 1.5,
+
+  // Step 13
+  defaultAppreciationRatePercent: 2.0,
+  defaultStressVacancyPercent: 10.0,
+  defaultStressInterestDeltaPp: 2.0,
+  defaultStressMaintenanceOnceCents: 500000, // 5.000 €
 } as const;
 
 // ---------------------------------------------------------------------------

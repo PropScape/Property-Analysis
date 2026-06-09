@@ -13,16 +13,18 @@ import { Step9Shell } from "@/components/wizard/steps/Step9Shell";
 import { Step10Form } from "@/components/wizard/steps/Step10Form";
 import { Step11Form } from "@/components/wizard/steps/Step11Form";
 import { Step12Form } from "@/components/wizard/steps/Step12Form";
+import { Step13Shell } from "@/components/wizard/steps/Step13Shell";
 import { KpiSidebarPlaceholder } from "@/components/wizard/KpiSidebarPlaceholder";
 import { WIZARD_STEP_LABELS } from "@/components/wizard/wizard-constants";
 import { TrendingUp, Percent, Scale, BarChart2 } from "lucide-react";
-import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data, Step10Data } from "@/domain/types/wizard";
+import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data, Step10Data, Step11Data, Step12Data } from "@/domain/types/wizard";
 import { computeAncillaryCosts } from "@/domain/calculations/acquisition-costs";
 import { computeRenovationBreakdown } from "@/domain/calculations/renovation";
 import { computeFinancingBreakdown } from "@/domain/calculations/financing";
 import { computeOperatingCostsBreakdown } from "@/domain/calculations/operating-costs";
 import { computeRentalKpis } from "@/domain/calculations/rental-kpis";
-import { computeReturnOnEquity, getChurchTaxRateForState, computeEffectiveTaxRate } from "@/domain/calculations/tax-kpis";
+import { computeReturnOnEquity, getChurchTaxRateForState, computeEffectiveTaxRate, computeAfaBasis, computeAnnualDepreciation } from "@/domain/calculations/tax-kpis";
+import { computePropertyNuancesBreakdown } from "@/domain/calculations/property-nuances";
 import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
 
 interface StepPageProps {
@@ -592,6 +594,133 @@ export default async function StepPage({ params }: StepPageProps) {
     );
   }
 
-  // ── Steps 13–16 — not yet implemented ──────────────────────────────────────────
+  // ── Step 13 ──────────────────────────────────────────────────────────────────────
+  if (stepNumber === 13) {
+    const [
+      step2Saved,
+      step3Saved,
+      step4Saved,
+      step5Saved,
+      step6Saved,
+      step7Saved,
+      step10Saved,
+      step11Saved,
+      step12Saved,
+    ] = await Promise.all([
+      fetchSavedStepData(supabase, id, 2),
+      fetchSavedStepData(supabase, id, 3),
+      fetchSavedStepData(supabase, id, 4),
+      fetchSavedStepData(supabase, id, 5),
+      fetchSavedStepData(supabase, id, 6),
+      fetchSavedStepData(supabase, id, 7),
+      fetchSavedStepData(supabase, id, 10),
+      fetchSavedStepData(supabase, id, 11),
+      fetchSavedStepData(supabase, id, 12),
+    ]);
+
+    const step2 = step2Saved as Partial<Step2Data> | null;
+    const livingAreaSqm = step2?.living_area_sqm ?? 0;
+
+    const step3 = step3Saved as Partial<Step3Data> | null;
+    const purchasePriceCents = step3?.purchase_price_cents ?? 0;
+    const coldRentCents = step3?.cold_rent_cents ?? 0;
+    const vacancyRatePercent = step3?.vacancy_rate_percent ?? WIZARD_DEFAULTS.vacancyRatePercent;
+
+    const step4 = step4Saved as Partial<Step4Data> | null;
+    const bundesland = step4?.bundesland ?? WIZARD_DEFAULTS.defaultBundesland;
+    const { totalAncillaryCents } = computeAncillaryCosts(
+      purchasePriceCents,
+      step4?.broker_fee_percent ?? WIZARD_DEFAULTS.brokerFeePercent,
+      step4?.notary_fee_percent ?? WIZARD_DEFAULTS.notaryFeePercent,
+      step4?.land_registry_fee_percent ?? WIZARD_DEFAULTS.landRegistryFeePercent,
+      bundesland,
+      step4?.custom_items ?? []
+    );
+
+    const step5 = step5Saved as Partial<Step5Data> | null;
+    const { newTotalInvestmentCents, totalMeasuresCents } = computeRenovationBreakdown(
+      step5?.measures ?? [],
+      purchasePriceCents + totalAncillaryCents
+    );
+
+    const step6 = step6Saved as Partial<Step6Data> | null;
+    const equityCents = step6?.equity_cents ?? 0;
+    const loanInterestRatePercent = step6?.loan_interest_rate_percent ?? 0;
+    const loanRepaymentRatePercent = step6?.loan_repayment_rate_percent ?? 0;
+    
+    const { loanAmountCents } = computeFinancingBreakdown(
+      equityCents,
+      newTotalInvestmentCents,
+      loanInterestRatePercent,
+      loanRepaymentRatePercent
+    );
+
+    const step7 = step7Saved as Partial<Step7Data> | null;
+    const { ownerCostsPerMonthCents } = computeOperatingCostsBreakdown(
+      {
+        recoverable_costs_per_month_cents: step7?.recoverable_costs_per_month_cents ?? 0,
+        non_recoverable_costs_per_month_cents: step7?.non_recoverable_costs_per_month_cents ?? 0,
+        property_management_fee_per_month_cents: step7?.property_management_fee_per_month_cents ?? 0,
+        maintenance_reserve_per_month_cents: step7?.maintenance_reserve_per_month_cents ?? 0,
+        additional_insurance_per_year_cents: step7?.additional_insurance_per_year_cents ?? 0,
+        other_costs_per_year_cents: step7?.other_costs_per_year_cents ?? 0,
+      },
+      coldRentCents
+    );
+
+    const step10 = step10Saved as Partial<Step10Data> | null;
+    const effectiveTaxRatePercent = computeEffectiveTaxRate(
+      step10?.legal_entity ?? WIZARD_DEFAULTS.defaultLegalEntity,
+      step10?.marginal_tax_rate_percent ?? WIZARD_DEFAULTS.defaultMarginalTaxRatePercent,
+      step10?.has_soli ?? WIZARD_DEFAULTS.defaultHasSoli,
+      step10?.has_church_tax ?? false,
+      getChurchTaxRateForState(bundesland)
+    );
+
+    const step11 = step11Saved as Partial<Step11Data> | null;
+    const afaBasisCents = computeAfaBasis(
+      purchasePriceCents,
+      totalAncillaryCents,
+      totalMeasuresCents,
+      step11?.building_share_percent ?? WIZARD_DEFAULTS.defaultBuildingSharePercent
+    );
+    const annualDepreciationCents = computeAnnualDepreciation(
+      afaBasisCents,
+      step11?.afa_rate_percent ?? WIZARD_DEFAULTS.defaultAfaRatePercent
+    );
+
+    const step12 = step12Saved as Partial<Step12Data> | null;
+    const nonRecoverableCostsPerMonthCents = step12?.non_recoverable_costs_per_month_cents ?? WIZARD_DEFAULTS.defaultNonRecoverableCostsPerMonthCentsStep12;
+    const { totalSpecialDeductionsCents } = computePropertyNuancesBreakdown(
+      nonRecoverableCostsPerMonthCents,
+      step12?.maintenance_per_sqm_euro ?? WIZARD_DEFAULTS.defaultMaintenancePerSqmEuro,
+      livingAreaSqm,
+      step12?.special_deductions ?? []
+    );
+
+    return (
+      <Step13Shell
+        analysisId={id}
+        inputs={{
+          purchasePriceCents,
+          totalInvestmentCents: newTotalInvestmentCents,
+          coldRentCents,
+          vacancyRatePercent,
+          equityCents,
+          loanAmountCents,
+          interestRatePercent: loanInterestRatePercent,
+          repaymentRatePercent: loanRepaymentRatePercent,
+          monthlyOwnerCostsCents: ownerCostsPerMonthCents,
+          effectiveTaxRatePercent,
+          annualDepreciationCents,
+          nonRecoverableCostsPerMonthCents,
+          specialDeductionsTotalCents: totalSpecialDeductionsCents,
+          appreciationRatePercent: WIZARD_DEFAULTS.defaultAppreciationRatePercent,
+        }}
+      />
+    );
+  }
+
+  // ── Steps 14–16 — not yet implemented ──────────────────────────────────────────
   notFound();
 }

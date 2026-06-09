@@ -423,3 +423,143 @@ export interface Step12Data {
    */
   special_deductions: SpecialDeductionItem[];
 }
+
+// ---------------------------------------------------------------------------
+// Step 13 — Final Cashflow & KPIs (Results Summary Shell)
+// ---------------------------------------------------------------------------
+
+/**
+ * Step 13 collects no user input — it is a read-only aggregation screen.
+ *
+ * @remarks
+ * The marker type is required so `saveStepAction` can advance `current_step`
+ * when the user clicks "Weiter" to navigate to Step 14.
+ *
+ * See SPEC-WIZARD-STEP13 v1.0.0.
+ */
+export type Step13Data = Record<string, never>;
+
+/**
+ * All numeric inputs required by `computeFinalCashflow`.
+ *
+ * @remarks
+ * Sourced from server-fetched step data (steps 3, 6, 7, 10, 11, 12).
+ * All monetary fields use integer cents.
+ */
+export interface FinalCashflowInputs {
+  /** Purchase price in cents (from Step 3). */
+  purchasePriceCents: number;
+  /** Total investment (purchase + Nebenkosten + renovation) in cents (from Step 4). */
+  totalInvestmentCents: number;
+  /** Net cold rent per month in cents (from Step 3). */
+  coldRentCents: number;
+  /** Vacancy rate as a percentage, e.g. 2.0 (from Step 3). */
+  vacancyRatePercent: number;
+  /** User's equity contribution in cents (from Step 6). */
+  equityCents: number;
+  /** Loan amount in cents (from Step 6). */
+  loanAmountCents: number;
+  /** Annual interest rate as a percentage (from Step 6). */
+  interestRatePercent: number;
+  /** Initial annual repayment rate as a percentage (from Step 6). */
+  repaymentRatePercent: number;
+  /** Total monthly owner operating costs in cents (from Step 7). */
+  monthlyOwnerCostsCents: number;
+  /** Effective tax rate as a percentage (computed from Step 10 fields). */
+  effectiveTaxRatePercent: number;
+  /** Annual AfA depreciation in cents (from Step 11). */
+  annualDepreciationCents: number;
+  /** Additional monthly non-recoverable costs in cents (from Step 12). */
+  nonRecoverableCostsPerMonthCents: number;
+  /** Sum of all annual special deductions in cents (from Step 12). */
+  specialDeductionsTotalCents: number;
+  /**
+   * Assumed annual property appreciation rate as a percentage.
+   * Defaults to the `defaultAppreciationRatePercent` config value (2.0 %).
+   */
+  appreciationRatePercent: number;
+}
+
+/**
+ * One year in the 10-year cashflow projection array.
+ *
+ * @remarks
+ * Both monetary fields are annual totals in integer cents.
+ */
+export interface ProjectionYear {
+  /** Year index (1–10). */
+  year: number;
+  /** Annual cashflow before tax in cents. */
+  preTaxCents: number;
+  /** Annual cashflow after tax in cents (includes AfA tax benefit). */
+  afterTaxCents: number;
+}
+
+/**
+ * Traffic-light status for a stress-test scenario result.
+ *
+ * - `"ok"` — monthly cashflow after tax still positive
+ * - `"risk"` — monthly cashflow is negative but ≥ −100 €
+ * - `"critical"` — monthly cashflow below −100 €
+ */
+export type StressStatus = "ok" | "risk" | "critical";
+
+/**
+ * A single pre-computed stress-test scenario result.
+ *
+ * See SPEC-WIZARD-STEP13 v1.0.0 §4.2 (computeStressScenarios).
+ */
+export interface StressScenario {
+  /** Stable identifier (e.g. "vacancy", "interest", "maintenance"). */
+  id: string;
+  /** Short German scenario name. */
+  title: string;
+  /** Description of the parameter change applied. */
+  description: string;
+  /** Resulting monthly cashflow after tax in cents. */
+  cashflowMonthCents: number;
+  /** Change vs. baseline monthly cashflow in cents (negative = worse). */
+  deltaCents: number;
+  /** Traffic-light classification. */
+  status: StressStatus;
+}
+
+/**
+ * The fully computed KPI summary produced by `computeFinalCashflow`.
+ *
+ * @remarks
+ * All monetary fields are integer cents. Percentage fields are decimal numbers
+ * (e.g. 4.8 for 4.8 %). This value object is never persisted to the DB —
+ * it is computed on demand from saved step data.
+ *
+ * See SPEC-WIZARD-STEP13 v1.0.0 §3.
+ */
+export interface FinalCashflowSummary {
+  /** Net cashflow before tax per month, in cents. */
+  preTaxMonthCents: number;
+  /** Net cashflow before tax per year, in cents. */
+  preTaxAnnualCents: number;
+  /** Annual tax refund from AfA + interest deduction shield, in cents. ≥ 0. */
+  taxRefundAnnualCents: number;
+  /** Net cashflow after tax per month, in cents. */
+  afterTaxMonthCents: number;
+  /** Net cashflow after tax per year, in cents. */
+  afterTaxAnnualCents: number;
+  /** Equity contributed at closing, in cents. */
+  equityRequiredCents: number;
+  /** Gross rental yield: (coldRent × 12) / purchasePrice × 100. */
+  grossYieldPercent: number;
+  /** Return on equity after tax in year 1. */
+  roePercent: number;
+  /** Annual loan repayment (Tilgung) in cents. */
+  annualRepaymentCents: number;
+  /** Assumed annual property appreciation in cents. */
+  appreciationAnnualCents: number;
+  /** Total economic return in year 1 (cashflow + Tilgung + appreciation). */
+  totalReturnYear1Cents: number;
+  /** 10-year cashflow projection. */
+  projectionYears: ProjectionYear[];
+  /** Investment quality classification for the status badge. */
+  investmentStatus: "positiv" | "neutral" | "negativ";
+}
+

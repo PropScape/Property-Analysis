@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data, Step8Data, Step9Data, Step10Data, Step11Data, Step12Data } from "@/domain/types/wizard";
+import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data, Step8Data, Step9Data, Step10Data, Step11Data, Step12Data, Step13Data } from "@/domain/types/wizard";
 
 /**
  * Zustand store for the 16-step analysis wizard.
@@ -41,7 +41,8 @@ export interface AnalysisStore {
   step10: Partial<Step10Data>;
   step11: Partial<Step11Data>;
   step12: Partial<Step12Data>;
-  // Steps 13–16 will be added in subsequent specs.
+  step13: Partial<Step13Data>;
+  // Steps 14–16 will be added in subsequent specs.
 
   // ── Actions ───────────────────────────────────────────────────────────────
   /** Sets the ID of the persisted analysis after `createAnalysisAction` succeeds. */
@@ -72,6 +73,8 @@ export interface AnalysisStore {
   setStep11: (data: Partial<Step11Data>) => void;
   /** Merges partial Step 12 data (Objektspezifische Nuancen) into the slice. */
   setStep12: (data: Partial<Step12Data>) => void;
+  /** Merges partial Step 13 data into the slice. */
+  setStep13: (data: Partial<Step13Data>) => void;
   /** Resets the entire store to initial state (e.g. after analysis creation). */
   reset: () => void;
 }
@@ -92,6 +95,7 @@ const initialState: Omit<
   | "setStep10"
   | "setStep11"
   | "setStep12"
+  | "setStep13"
   | "reset"
 > = {
   analysisId: null,
@@ -108,6 +112,7 @@ const initialState: Omit<
   step10: {},
   step11: {},
   step12: {},
+  step13: {},
 };
 
 export const useAnalysisStore = create<AnalysisStore>()(
@@ -141,6 +146,8 @@ export const useAnalysisStore = create<AnalysisStore>()(
         set((state) => ({ step11: { ...state.step11, ...data } })),
       setStep12: (data) =>
         set((state) => ({ step12: { ...state.step12, ...data } })),
+      setStep13: (data) =>
+        set((state) => ({ step13: { ...state.step13, ...data } })),
       reset: () => set({ ...initialState }),
     }),
     {

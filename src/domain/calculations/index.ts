@@ -11,3 +11,4 @@
  */
 
 export * from "./property-nuances";
+export * from "./final-cashflow";
