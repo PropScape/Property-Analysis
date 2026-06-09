@@ -9,7 +9,7 @@ import { saveStepAction } from "@/actions/analysis";
 import { useAnalysisStore } from "@/stores/analysis-store";
 import { cn } from "@/lib/utils";
 import type { FinalCashflowInputs } from "@/domain/types/wizard";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { WIZARD_DEFAULTS } from "@/config/wizard-defaults";
 
 interface Step13ShellProps {
@@ -120,10 +120,8 @@ export function Step13Shell({
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative min-h-[400px]">
           
           {/* TAB: Cashflow & Steuern */}
-          <div className={cn(
-            "absolute inset-0 p-6 sm:p-8 transition-opacity duration-300",
-            activeTab === "cashflow" ? "opacity-100 z-10" : "opacity-0 -z-10 pointer-events-none"
-          )}>
+          {activeTab === "cashflow" && (
+            <div className="p-6 sm:p-8 animate-in fade-in duration-300">
             <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-emerald-500" />
               Cashflow nach Steuern
@@ -166,54 +164,79 @@ export function Step13Shell({
             </div>
 
             <div className="mt-8">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">10-Jahres-Prognose (Nach Steuern)</h3>
-              <div className="h-[250px] w-full">
+              <h3 className="text-sm font-bold text-slate-900 mb-4">Cashflow Entwicklung (10 Jahre)</h3>
+              <div className="h-[300px] w-full bg-slate-50/50 rounded-xl p-4 border border-slate-100">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={summary.projectionYears} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <ComposedChart data={summary.projectionYears} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorCashflow" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={isPositive ? "#10b981" : "#f43f5e"} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={isPositive ? "#10b981" : "#f43f5e"} stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#1e3a8a" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#1e3a8a" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis 
                       dataKey="year" 
-                      axisLine={false} 
+                      axisLine={{ stroke: '#e2e8f0' }} 
                       tickLine={false} 
-                      tick={{ fill: '#64748b', fontSize: 12 }} 
-                      tickFormatter={(val) => `Jahr ${val}`}
+                      tick={{ fill: '#94a3b8', fontSize: 12 }} 
+                      tickFormatter={(val) => `J${val}`}
+                      dy={10}
                     />
                     <YAxis 
                       axisLine={false} 
                       tickLine={false} 
-                      tick={{ fill: '#64748b', fontSize: 12 }}
-                      tickFormatter={(val) => `${Math.round(val / 100)} €`}
+                      width={80}
+                      tick={{ fill: '#94a3b8', fontSize: 12 }}
+                      tickFormatter={(val) => `${Math.round(val / 100).toLocaleString('de-DE')} €`}
                     />
                     <Tooltip 
-                      formatter={(value: number | string) => [formatCentsEur(Number(value)), "Cashflow p.a."]}
+                      formatter={(value: unknown, name: string) => {
+                        const label = name === "afterTaxCents" ? "Nach Steuern" : "Vor Steuern";
+                        return [formatCentsEur(Number(value)), label];
+                      }}
                       labelFormatter={(label) => `Jahr ${label}`}
                       contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={36} 
+                      iconType="plainline"
+                      formatter={(value) => (
+                        <span className="text-slate-500 text-sm font-medium ml-1">
+                          {value === "afterTaxCents" ? "Nach Steuern" : "Vor Steuern"}
+                        </span>
+                      )}
                     />
                     <Area 
                       type="monotone" 
                       dataKey="afterTaxCents" 
-                      stroke={isPositive ? "#10b981" : "#f43f5e"} 
+                      name="afterTaxCents"
+                      stroke="#1e3a8a" 
                       strokeWidth={3}
                       fillOpacity={1} 
                       fill="url(#colorCashflow)" 
+                      activeDot={{ r: 6, fill: "#1e3a8a", stroke: "#fff", strokeWidth: 2 }}
                     />
-                  </AreaChart>
+                    <Line
+                      type="monotone"
+                      dataKey="preTaxCents"
+                      name="preTaxCents"
+                      stroke="#64748b"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: "#64748b" }}
+                      activeDot={{ r: 6, fill: "#64748b", stroke: "#fff", strokeWidth: 2 }}
+                    />
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             </div>
           </div>
+          )}
 
           {/* TAB: Eigenkapital & Rendite */}
-          <div className={cn(
-            "absolute inset-0 p-6 sm:p-8 transition-opacity duration-300",
-            activeTab === "rendite" ? "opacity-100 z-10" : "opacity-0 -z-10 pointer-events-none"
-          )}>
+          {activeTab === "rendite" && (
+            <div className="p-6 sm:p-8 animate-in fade-in duration-300">
             <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <Scale className="w-5 h-5 text-navy-500" />
               Rendite & Vermögensaufbau
@@ -257,12 +280,11 @@ export function Step13Shell({
               Der Total Return berücksichtigt neben dem Cashflow auch den langfristigen Vermögensaufbau durch Schuldentilgung und konservativ geschätzte Wertsteigerung.
             </p>
           </div>
+          )}
 
           {/* TAB: Stresstest Highlights */}
-          <div className={cn(
-            "absolute inset-0 p-6 sm:p-8 transition-opacity duration-300 overflow-y-auto",
-            activeTab === "stress" ? "opacity-100 z-10" : "opacity-0 -z-10 pointer-events-none"
-          )}>
+          {activeTab === "stress" && (
+            <div className="p-6 sm:p-8 animate-in fade-in duration-300">
             <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-amber-500" />
               Szenario-Analyse
@@ -295,6 +317,7 @@ export function Step13Shell({
               ))}
             </div>
           </div>
+          )}
         </div>
 
         {error && (
