@@ -91,6 +91,7 @@ const initialState: Omit<
   | "setStep9"
   | "setStep10"
   | "setStep11"
+  | "setStep12"
   | "reset"
 > = {
   analysisId: null,
