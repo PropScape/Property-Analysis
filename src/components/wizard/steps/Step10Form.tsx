@@ -315,7 +315,7 @@ export function Step10Form({
                     contentStyle={{ backgroundColor: "#1e293b", borderColor: "#334155", borderRadius: "8px" }}
                     itemStyle={{ color: "#f8fafc" }}
                     labelStyle={{ color: "#94a3b8", marginBottom: "4px" }}
-                    formatter={(value: number) => [`${value} €`, "Cashflow"]}
+                    formatter={(value) => [`${value} €`, "Cashflow"]}
                     labelFormatter={(label) => `Grenzsteuersatz: ${label}%`}
                   />
                   <Area
