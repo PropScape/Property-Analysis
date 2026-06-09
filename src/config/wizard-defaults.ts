@@ -20,7 +20,7 @@
  * Per-user changes go through the settings feature, not this file.
  */
 
-import type { Bundesland } from "@/domain/types/wizard";
+import type { Bundesland, CostAllocationType } from "@/domain/types/wizard";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -65,6 +65,27 @@ export interface WizardDefaults {
   defaultMaintenanceReservePerMonthCents: number;
   defaultAdditionalInsurancePerYearCents: number;
   defaultOtherCostsPerYearCents: number;
+
+  // ── Step 10 — Individual Tax Rate ────────────────────────────────────────
+  defaultLegalEntity: "privat" | "gmbh" | "gewerblich";
+  defaultMarginalTaxRatePercent: number;
+  defaultHasSoli: boolean;
+
+  // ── Step 11 — Gebäudeabschreibung (AfA) ─────────────────────────────────
+  /** Default building share of the purchase price in percent. */
+  defaultBuildingSharePercent: number;
+  /** Default AfA method. */
+  defaultAfaMethod: "linear" | "degressive" | "sonder";
+  /** Default AfA rate in percent. */
+  defaultAfaRatePercent: number;
+
+  // ── Step 12 — Objektspezifische Nuancen ─────────────────────────────────
+  /** Default cost allocation type. */
+  defaultCostAllocationType: CostAllocationType;
+  /** Default non-recoverable costs per month in cents. */
+  defaultNonRecoverableCostsPerMonthCentsStep12: number;
+  /** Default maintenance rate in €/m²/month (decimal). */
+  defaultMaintenancePerSqmEuro: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -101,7 +122,61 @@ export const WIZARD_DEFAULTS: WizardDefaults = {
   defaultMaintenanceReservePerMonthCents: 0,
   defaultAdditionalInsurancePerYearCents: 0,
   defaultOtherCostsPerYearCents: 0,
+
+  // Step 10
+  defaultLegalEntity: "privat",
+  defaultMarginalTaxRatePercent: 42,
+  defaultHasSoli: true,
+
+  // Step 11
+  defaultBuildingSharePercent: 80,
+  defaultAfaMethod: "linear",
+  defaultAfaRatePercent: 2.0,
+
+  // Step 12
+  defaultCostAllocationType: "nicht_umlegbar",
+  defaultNonRecoverableCostsPerMonthCentsStep12: 3500, // 35 €/month
+  defaultMaintenancePerSqmEuro: 1.5,
 } as const;
+
+// ---------------------------------------------------------------------------
+// Step 12 — Special Deduction Presets (regulatory / reference data per ADR-008)
+// ---------------------------------------------------------------------------
+
+/**
+ * Shape of a preset deduction item displayed in the Step 12 quick-add list.
+ *
+ * @remarks
+ * These are reference items only — they are NOT stored in the DB.
+ * When the user clicks "Hinzufügen", a `SpecialDeductionItem` is created
+ * with this label and a zero amount, then appended to their deductions array.
+ *
+ * Lucide icon names map to the Lucide React icon components.
+ * See design-system.md §12 (Iconography).
+ */
+export interface DeductionPreset {
+  id: string;
+  label: string;
+  /** Lucide icon component name. */
+  icon: string;
+}
+
+/**
+ * Preset quick-add items for the Sonderabzüge section.
+ *
+ * @remarks
+ * Common German rental property tax deductions. Order reflects
+ * expected frequency of use.
+ *
+ * See SPEC-WIZARD-STEP12 v1.0.0 §3.
+ */
+export const SPECIAL_DEDUCTION_PRESETS: DeductionPreset[] = [
+  { id: "travel", label: "Fahrtkosten", icon: "Car" },
+  { id: "office", label: "Bürobedarf", icon: "Paperclip" },
+  { id: "software", label: "Berufssoftware", icon: "Laptop" },
+  { id: "phone", label: "Telefon / Internet", icon: "Phone" },
+  { id: "legal", label: "Steuerberater / Rechtsanwalt", icon: "Scale" },
+];
 
 // ---------------------------------------------------------------------------
 // Resolver (ready for per-user override wiring)

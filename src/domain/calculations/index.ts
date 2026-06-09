@@ -1,5 +1,5 @@
 /**
- * Placeholder for domain calculation functions.
+ * Barrel export for all domain calculation modules.
  *
  * All financial calculations live here and must follow these rules:
  * - Zero framework imports (no react, next, supabase)
@@ -9,3 +9,5 @@
  *
  * See ADR-004 (Clean Architecture) and docs/architecture.md §2.1.
  */
+
+export * from "./property-nuances";

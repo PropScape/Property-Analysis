@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data, Step8Data } from "@/domain/types/wizard";
+import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data, Step8Data, Step9Data, Step10Data, Step11Data, Step12Data } from "@/domain/types/wizard";
 
 /**
  * Zustand store for the 16-step analysis wizard.
@@ -37,7 +37,11 @@ export interface AnalysisStore {
   step6: Partial<Step6Data>;
   step7: Partial<Step7Data>;
   step8: Partial<Step8Data>;
-  // Steps 9–16 will be added in subsequent specs.
+  step9: Partial<Step9Data>;
+  step10: Partial<Step10Data>;
+  step11: Partial<Step11Data>;
+  step12: Partial<Step12Data>;
+  // Steps 13–16 will be added in subsequent specs.
 
   // ── Actions ───────────────────────────────────────────────────────────────
   /** Sets the ID of the persisted analysis after `createAnalysisAction` succeeds. */
@@ -60,6 +64,14 @@ export interface AnalysisStore {
   setStep7: (data: Partial<Step7Data>) => void;
   /** Merges partial Step 8 data into the slice. */
   setStep8: (data: Partial<Step8Data>) => void;
+  /** Merges partial Step 9 data into the slice. */
+  setStep9: (data: Partial<Step9Data>) => void;
+  /** Merges partial Step 10 data into the slice. */
+  setStep10: (data: Partial<Step10Data>) => void;
+  /** Merges partial Step 11 data into the slice. */
+  setStep11: (data: Partial<Step11Data>) => void;
+  /** Merges partial Step 12 data (Objektspezifische Nuancen) into the slice. */
+  setStep12: (data: Partial<Step12Data>) => void;
   /** Resets the entire store to initial state (e.g. after analysis creation). */
   reset: () => void;
 }
@@ -76,6 +88,9 @@ const initialState: Omit<
   | "setStep6"
   | "setStep7"
   | "setStep8"
+  | "setStep9"
+  | "setStep10"
+  | "setStep11"
   | "reset"
 > = {
   analysisId: null,
@@ -88,6 +103,10 @@ const initialState: Omit<
   step6: {},
   step7: {},
   step8: {},
+  step9: {},
+  step10: {},
+  step11: {},
+  step12: {},
 };
 
 export const useAnalysisStore = create<AnalysisStore>()(
@@ -113,6 +132,14 @@ export const useAnalysisStore = create<AnalysisStore>()(
         set((state) => ({ step7: { ...state.step7, ...data } })),
       setStep8: (data) =>
         set((state) => ({ step8: { ...state.step8, ...data } })),
+      setStep9: (data) =>
+        set((state) => ({ step9: { ...state.step9, ...data } })),
+      setStep10: (data) =>
+        set((state) => ({ step10: { ...state.step10, ...data } })),
+      setStep11: (data) =>
+        set((state) => ({ step11: { ...state.step11, ...data } })),
+      setStep12: (data) =>
+        set((state) => ({ step12: { ...state.step12, ...data } })),
       reset: () => set({ ...initialState }),
     }),
     {

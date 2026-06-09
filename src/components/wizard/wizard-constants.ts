@@ -23,7 +23,7 @@ export const WIZARD_STEP_LABELS: Record<number, string> = {
   9: "Instandhaltung",
   10: "Steuer",
   11: "Liquidität",
-  12: "Rendite",
+  12: "Nuancen",
   13: "Stresstest",
   14: "Risiko",
   15: "Ausstieg",

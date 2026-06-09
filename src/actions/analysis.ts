@@ -10,6 +10,9 @@ import { step4Schema } from "@/domain/schemas/step4";
 import { step5Schema } from "@/domain/schemas/step5";
 import { step6Schema } from "@/domain/schemas/step6";
 import { step7Schema } from "@/domain/schemas/step7";
+import { step10Schema } from "@/domain/schemas/step10";
+import { step11Schema } from "@/domain/schemas/step11";
+import { step12Schema } from "@/domain/schemas/step12";
 import { step8Schema } from "@/domain/schemas/step8";
 import { ok, err } from "@/domain/types/result";
 import type { Result } from "@/domain/types/result";
@@ -161,6 +164,23 @@ export async function saveStepAction(
     }
   } else if (stepNumber === 8) {
     const parsed = step8Schema.safeParse(data);
+    if (!parsed.success) {
+      return err(parsed.error.issues.map((i) => i.message).join(", "));
+    }
+  } else if (stepNumber === 9) {
+    // Step 9 is informational, no validation needed
+  } else if (stepNumber === 10) {
+    const parsed = step10Schema.safeParse(data);
+    if (!parsed.success) {
+      return err(parsed.error.issues.map((i) => i.message).join(", "));
+    }
+  } else if (stepNumber === 11) {
+    const parsed = step11Schema.safeParse(data);
+    if (!parsed.success) {
+      return err(parsed.error.issues.map((i) => i.message).join(", "));
+    }
+  } else if (stepNumber === 12) {
+    const parsed = step12Schema.safeParse(data);
     if (!parsed.success) {
       return err(parsed.error.issues.map((i) => i.message).join(", "));
     }

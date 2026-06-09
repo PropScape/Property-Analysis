@@ -310,3 +310,116 @@ export interface Step7Data {
  * See SPEC-WIZARD-STEP8 v1.0.0.
  */
 export type Step8Data = Record<string, never>;
+
+/**
+ * Step 9 form data — Tax Calculation Start.
+ *
+ * @remarks
+ * This is a pure informational step with no user inputs.
+ */
+export type Step9Data = Record<string, never>;
+
+/**
+ * Step 10: Individual Tax Rate
+ *
+ * @remarks
+ * Contains user's legal entity and marginal tax rate assumptions.
+ */
+export interface Step10Data {
+  legal_entity: "privat" | "gmbh" | "gewerblich";
+  marginal_tax_rate_percent: number;
+  has_soli: boolean;
+  has_church_tax: boolean;
+  notes?: string;
+}
+
+/**
+ * Step 11: Gebäudeabschreibung (AfA)
+ *
+ * @remarks
+ * Contains the building/land split and depreciation parameters.
+ * The AfA basis is computed from Steps 3, 4, 5 data × building share.
+ */
+export interface Step11Data {
+  building_share_percent: number;
+  afa_method: "linear" | "degressive" | "sonder";
+  afa_rate_percent: number;
+  afa_start_date: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Step 12 — Objektspezifische Nuancen
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A single user-defined tax deduction line item (Sonderabzug).
+ *
+ * @remarks
+ * `id` is a client-side UUID used as a React key and for array identity.
+ * It is NOT persisted as a primary key — the array is stored as JSONB.
+ * `amount_per_year_cents` follows the integer-cents monetary convention.
+ *
+ * See SPEC-WIZARD-STEP12 v1.0.0.
+ */
+export interface SpecialDeductionItem {
+  /** Client-side UUID for React key stability. Not persisted as PK. */
+  id: string;
+  /** Free-text description of the deduction (1–100 chars). */
+  label: string;
+  /** Annual deduction amount in integer cents (e.g. 120000 = 1.200 €). */
+  amount_per_year_cents: number;
+}
+
+/**
+ * Cost allocation classification for non-recoverable operating costs.
+ *
+ * - `voll_umlegbar`     — Fully allocatable to tenant (umlagefähig)
+ * - `teilweise_umlegbar` — Partially allocatable
+ * - `nicht_umlegbar`    — Non-recoverable from tenant (nicht umlagefähig)
+ */
+export type CostAllocationType =
+  | "voll_umlegbar"
+  | "teilweise_umlegbar"
+  | "nicht_umlegbar";
+
+/**
+ * Step 12 form data — Objektspezifische Nuancen.
+ *
+ * @remarks
+ * Captures three categories of property-specific tax and cost detail:
+ * 1. Rental modality flags (furnished / short-term).
+ * 2. Cost-allocation type and numeric operating cost inputs.
+ * 3. Custom annual tax deduction items (Sonderabzüge).
+ *
+ * `maintenance_per_sqm_euro` is stored as a decimal euro rate (not cents)
+ * because it is a per-m² rate — the domain function converts to cents for
+ * annual totals.
+ *
+ * See SPEC-WIZARD-STEP12 v1.0.0.
+ */
+export interface Step12Data {
+  // ── Vermietungsart ────────────────────────────────────────────────────────
+  /** Whether the property is rented furnished (möbliert). */
+  is_furnished: boolean;
+  /** Whether the property is used for short-term rental (Airbnb etc.). */
+  is_short_term_rental: boolean;
+
+  // ── Kostenallokation ──────────────────────────────────────────────────────
+  /** How the non-recoverable costs are classified for tax purposes. */
+  cost_allocation_type: CostAllocationType;
+  /** Additional monthly non-recoverable costs in integer cents. */
+  non_recoverable_costs_per_month_cents: number;
+  /**
+   * Expected maintenance cost rate in decimal euros per m² per month.
+   * Range: 0–20. Example: 1.5 = 1,50 €/m²/month.
+   * Not stored as cents because it is a rate, not an absolute amount.
+   */
+  maintenance_per_sqm_euro: number;
+
+  // ── Sonderabzüge ──────────────────────────────────────────────────────────
+  /**
+   * User-defined annual tax deduction items. Max 20 entries.
+   * Each item follows the `SpecialDeductionItem` contract.
+   */
+  special_deductions: SpecialDeductionItem[];
+}

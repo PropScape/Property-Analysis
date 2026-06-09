@@ -1,14 +1,14 @@
 # Project State
 
-> **Last Updated:** 2026-05-19
+> **Last Updated:** 2026-06-09
 
 ## Current Phase
 
-**Feature Development — Wizard Steps 1–8 complete**
+**Feature Development — Wizard Steps 1–12 complete**
 
-Project scaffold, auth, and project-overview are implemented. Wizard steps 1–8
+Project scaffold, auth, and project-overview are implemented. Wizard steps 1–12
 are live with DB persistence. Domain calculation layer extracted. Config layer
-introduced. Ready for Step 9 (Zinsrisiko).
+introduced. Ready for Step 13.
 
 ## Active Work
 
@@ -23,8 +23,11 @@ introduced. Ready for Step 9 (Zinsrisiko).
 - **Step 7 (Hausgeld)**: Completed ✅
 - **Step 8 (Initial Cashflow)**: Completed ✅
 - **Step 9 (Tax Start Screen)**: Completed ✅
-- **Step 10-16**: Pending
-- Next: SPEC-WIZARD-STEP9 (Zinsrisiko)
+- **Step 10 (Individual Tax Rate)**: Completed ✅
+- **Step 11 (Gebäudeabschreibung/AfA)**: Completed ✅
+- **Step 12 (Objektspezifische Nuancen)**: Completed ✅
+- **Step 13-16**: Pending
+- Next: SPEC-WIZARD-STEP13
 
 ## ⚠️ Standing Rules (read before every session)
 
@@ -47,7 +50,7 @@ introduced. Ready for Step 9 (Zinsrisiko).
 
 | Date | Change |
 |---|---|
-| 2026-05-19 | SPEC-WIZARD-STEP8 v1.0.0: Initial Cashflow — dynamic KPI dashboard aggregating steps 3-7, forward stepper navigation unlocked |
+| 2026-06-09 | SPEC-WIZARD-STEP12 v1.0.0: Objektspezifische Nuancen — three-accordion form (Vermietungsart, Kostenallokation, Sonderabzüge), `property-nuances.ts` domain calc, `step12.ts` Zod schema, `SPECIAL_DEDUCTION_PRESETS` config, step12 Zustand slice, 28 new Vitest tests (215 total) |
 | 2026-05-19 | SPEC-WIZARD-STEP7 v1.0.0: Hausgeld & Verwaltung — operating costs dashboard, Kostenquote gauge |
 | 2026-05-19 | SPEC-WIZARD-STEP6 v1.0.0: Finanzierung — equity & loan form, LTV slider, domain calculation for German Annuity Loan (Kapitaldienst) |
 | 2026-05-19 | SPEC-WIZARD-STEP5 v1.0.0: Sanierungsmaßnahmen — dynamic measure repeater, immediate/deferred split, Impact Preview sidebar, 13 new domain tests |
