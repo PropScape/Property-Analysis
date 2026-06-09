@@ -54,34 +54,45 @@ export function Step10Form({
     churchTaxRatePercent
   );
 
-  // Mock After-Tax Calculation
+  /**
+   * After-tax estimate for the sidebar preview.
+   *
+   * @remarks
+   * A precise after-tax figure requires AfA (Step 11), deductible interest,
+   * and special deductions (Step 12) — none of which are available yet.
+   * We apply the effective rate directly to the pre-tax cashflow as a
+   * conservative worst-case approximation. The final result will differ
+   * once all deductions are factored in.
+   */
   const preTaxEur = preTaxCashflowCents / 100;
-  const taxablePortion = preTaxEur * 0.8;
-  const taxAmount = taxablePortion * (effectiveTaxRate / 100);
+  const taxAmount = preTaxEur * (effectiveTaxRate / 100);
   const afterTaxEur = preTaxEur - taxAmount;
 
-  // Chart Data (Cashflow vs. Tax Rate Curve)
-  // X values from 0 to 50
+  // Chart Data: Cashflow vs. Tax Rate Curve (privat only; fixed for GmbH/gewerblich)
+  // X-axis range mirrors the input cap: 0–45% (Spitzensteuersatz / Reichensteuer).
   const chartData = useMemo(() => {
-    const points = [0, 10, 20, 30, 40, 42, 45, 50];
+    const points = [0, 10, 20, 30, 40, 42, 45];
     return points.map((x) => {
       const simEffective = computeEffectiveTaxRate(
-        legalEntity === "privat" ? "privat" : legalEntity,
+        legalEntity,
         x,
         hasSoli,
         hasChurchTax,
         churchTaxRatePercent
       );
-      // For chart, if not private, the curve is flat because the effective rate is fixed
+      // For GmbH/gewerblich the rate is fixed regardless of the slider value.
       const plotRate = isPrivat ? simEffective : effectiveTaxRate;
-      const simTaxAmount = taxablePortion * (plotRate / 100);
-      const simAfterTax = Math.round(preTaxEur - simTaxAmount);
+      const simAfterTax = Math.round(preTaxCashflowCents / 100 - (preTaxCashflowCents / 100) * (plotRate / 100));
       return {
         rate: x,
         cashflow: simAfterTax,
       };
     });
-  }, [legalEntity, hasSoli, hasChurchTax, churchTaxRatePercent, taxablePortion, preTaxEur, isPrivat, effectiveTaxRate]);
+    // `preTaxCashflowCents` is a stable prop (number primitive) — safe as a dep.
+    // Derived `preTaxEur` / `taxablePortion` are excluded because they are always
+    // new references that would defeat memoisation.
+  }, [legalEntity, hasSoli, hasChurchTax, churchTaxRatePercent, preTaxCashflowCents, isPrivat, effectiveTaxRate]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
