@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { newAnalysisSchema } from "@/domain/schemas/new-analysis";
 import { step1Schema } from "@/domain/schemas/step1";
@@ -230,6 +231,17 @@ export async function saveStepAction(
     .update({ current_step: nextStep })
     .eq("id", analysisId)
     .lt("current_step", nextStep); // only advance, never go back
+
+  /**
+   * Invalidate the wizard layout's cached DB fetch so `furthestStep` is
+   * refreshed on the next navigation. Without this, the layout Server
+   * Component returns stale data and completed steps never show the
+   * checkmark nor become clickable links in the WizardStepper.
+   *
+   * We revalidate the layout segment (`/analysis/[id]/step`) rather than
+   * the specific step page to avoid invalidating unrelated routes.
+   */
+  revalidatePath(`/analysis/${analysisId}/step`, "layout");
 
   return ok({ currentStep: nextStep });
 }
